@@ -1,12 +1,7 @@
 '''
-
-some things to work out:
-	do i need to get currentValue of Knob on init?
-	how to get value of Fader on init?
-
-safe exiting, safe id'ing midi controller:
-	i think safe exiting works. i guess ALSA will tell me if it gets overloaded again.
+midi controller setup
 '''
+
 import rtmidi
 from time import sleep
 import sys

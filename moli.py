@@ -490,6 +490,7 @@ class Sykurmoli():
     # BIAS/RESPONSE CALCULATIONS
 
 	def newAll(self):
+		# sibelius crashed
 		self.createAudibleList()
 		self.createDirectionList()
 		self.createEndarList()

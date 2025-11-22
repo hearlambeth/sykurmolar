@@ -1,3 +1,7 @@
+'''
+triggers that force a response from sykurmolar
+'''
+
 import pyo64 as pyo
 from random import uniform, sample
 from mafs import incbind
@@ -128,8 +132,8 @@ class Combine():
 		self.changeOutputTrigger()
 		
 	
-primesLong = (5, 7, 11, 13, 17)
-primesShort = (19, 23, 29, 31, 37)
+primesLong = (2, 3, 5, 7, 11)
+primesShort = (13, 17, 19, 23, 29)
 
 class Ammæli():
 	'''

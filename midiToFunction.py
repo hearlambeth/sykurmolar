@@ -1,5 +1,5 @@
 '''
-DICTIONARIES FOR MIDI CONTROL TO FUNCTION
+dictionaries mapping midi buttons/knobs/faders to specific functions
 '''
 
 normal = {

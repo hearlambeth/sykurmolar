@@ -1,3 +1,9 @@
+'''
+calculations
+
+a lot of unused/unfinished/dropped functions here
+'''
+
 import numpy
 from scipy.stats import truncnorm
 from math import ceil, isclose
@@ -9,13 +15,16 @@ PROBABILITY DISTRIBUTIONS
 '''
 
 def randomBinomial(bias, size):
-	# binomial distribution - a peak around the bias
-	# returns a list of size 'size'
+	'''
+	binomial distribution - a peak around the bias
+	returns a list of size 'size'
+	'''
 	return list(numpy.random.binomial(n = 1, p = bias, size = size))
 
 #sd = 0.05 # standard deviation
 
 def randomTruncNormal(minimum, maximum, bias, size):
+	# UNUSED
 	# truncated normal distribution between minimum and maximum
 	# to increase the sharpness of the peak/decrease the range, reduce sd
 	# from here: https://stackoverflow.com/questions/18441779/how-to-specify-upper-and-lower-limits-when-using-numpy-random-normal
@@ -60,7 +69,7 @@ def randomBeta(minimum, maximum, bias, size):
 	
 
 def randomTriangular(minimum, maximum, bias, size):
-	# deprecated in favor of randomTruncNormal
+	# deprecated in favor of randomTruncNormal (now also unused)
 	# ! consider replacing with arcsine - from scipy.stats import arcsine 
 	# triangular distribution
 	# but: if minimum is maximum, picks this number; if bias is at extremes, picks extreme
@@ -129,7 +138,7 @@ def newFromMiddle(amount, minimum, maximum, minimumLimit, maximumLimit):
 
 
 def iterate(currentIndex, maxIndex):
-	# find out if there's a prebuilt function for faster iterating a long list
+	# presumably there's a prebuilt function for faster iterating a long list
 	currentIndex += 1
 	if currentIndex > maxIndex:
 		currentIndex = 0
