@@ -7,11 +7,7 @@ on raspberry pi:
 IMPORTS
 '''
 # local imports
-import constants
-import midi
-import midiToFunction
-import moli
-import triggers
+import constants, midi, midiToFunction, moli, triggers
 # external imports
 import pyo64 as pyo
 import sys, os, shutil, random
@@ -36,9 +32,8 @@ if str(sys.argv[1]) == '1':
 '''
 PYO SERVER SETUP
 '''
-inputChannels = 1
 
-pyoServer = pyo.Server(nchnls=2, ichnls=inputChannels, audio='jack')
+pyoServer = pyo.Server(nchnls=2, ichnls=constants.INPUT_CHANNELS, audio='jack')
 #pyoServer.setInOutDevice(3)
 #pyo.pa_list_devices()
 pyoServer.boot()
@@ -47,16 +42,11 @@ pyoServer.start()
 '''
 AUDIO STREAM
 '''
-programDurationMinutes = 45
-audioTableDurationSamples = constants.SAMPLE_RATE * 60 * programDurationMinutes
-audioTable = pyo.DataTable(audioTableDurationSamples, chnls=2)
+audioTable = pyo.DataTable(constants.AUDIO_TABLE_DURATION_SAMPLES, chnls=2)
 
 '''
 RECORDING
 '''
-recordedFilePrefix = str(strftime("%y%m%d") + "-" + strftime("%H%M%S"))
-recordedFileDestination = str(sys.path[0] + '/recordings/')
-recordedFileTempDestination = str('/dev/shm/')
 currentRecordingNumber = 0
 recording = False
 
@@ -77,7 +67,7 @@ def record():
 		midiHandler.sendButtonLEDColor('b_TR3_RECORD', 'OFF')
 
 def recordStart():
-	newFileName = str(recordedFileTempDestination + recordedFilePrefix + '_' + str(currentRecordingNumber) + '.wav')
+	newFileName = str(constants.RECORDED_FILE_DESTINATION_TEMP + constants.RECORDED_FILE_PREFIX + '_' + str(currentRecordingNumber) + '.wav')
 	pyoServer.recordOptions(filename = newFileName)
 	pyoServer.recstart()
 
@@ -85,10 +75,10 @@ def recordStop():
 	pyoServer.recstop()
 
 def moveRecordings():
-	recordedFiles = os.listdir(recordedFileTempDestination)
+	recordedFiles = os.listdir(constants.RECORDED_FILE_DESTINATION_TEMP)
 	for file in recordedFiles:
 		if file.endswith('wav'):
-			shutil.move(os.path.join(recordedFileTempDestination, file), os.path.join(recordedFileDestination, file))
+			shutil.move(os.path.join(constants.RECORDED_FILE_DESTINATION_TEMP, file), os.path.join(constants.RECORDED_FILE_DESTINATION_FINAL, file))
 
 
 '''
@@ -102,19 +92,18 @@ LINE IN
 '''
 
 # select lineIn audio by mono or stereo
-if inputChannels == 1:
+if constants.INPUT_CHANNELS == 1:
 	lineInAudio = pyo.Input(0)
 	lineInAudioOut = pyo.Input(0)
-elif inputChannels == 2:
+elif constants.INPUT_CHANNELS == 2:
 	lineInAudio = pyo.Input([0,1]).mix()
 	lineInAudioOut = pyo.Input([0,1]).mix()
 
-lineInVolPortamento = pyo.SigTo(0, time=moli.PORTAMENTOTRANSITION, init=0)
+lineInVolPortamento = pyo.SigTo(0, time=constants.PORTAMENTO_TRANSITION_SECONDS, init=0)
 lineInAudioOut.mul = lineInVolPortamento
 
 # old version: lineInAudioOutPan = pyo.SPan(lineInAudioOut).out() # CHANGE THIS TO PAN, SET A PAN TO BE A SIGTO, FN TO CHANGE THE SIGTO
-# NEW VERSION - TWO LINES
-lineInPanPortamento = pyo.SigTo(0.5, moli.PORTAMENTOTRANSITION, init = 0.5)
+lineInPanPortamento = pyo.SigTo(0.5, constants.PORTAMENTO_TRANSITION_SECONDS, init = 0.5)
 lineInAudioOutPan = pyo.Pan(lineInAudioOut, pan = lineInPanPortamento).out()
 
 lineInMuted = True
@@ -178,14 +167,10 @@ allTriggers = (
 )
 
 
-
 '''
 LINEIN RANGE FOR STARTPOINTS
-
-defines the time before now that StartPoint of type lineIn can pick
 '''
-lineInRangeMin = int(2.6 * constants.SAMPLE_RATE) # can this be lower? with a lower xruns pc?
-lineInRange = lineInRangeMin
+lineInRange = constants.LINE_IN_LOOKBACK_RANGE_MIN_SAMPLES
 
 def updateLineInRange(new):
 	global lineInRange
@@ -193,30 +178,30 @@ def updateLineInRange(new):
 	# invert new so it's a simple exponent
 	# raise to the power of new, then add to min
 	new = 1 - new
-	exponent = int(audioTableDurationSamples ** new)
-	lineInRange = lineInRangeMin + exponent
+	exponent = int(constants.AUDIO_TABLE_DURATION_SAMPLES ** new)
+	lineInRange = constants.LINE_IN_LOOKBACK_RANGE_MIN_SAMPLES + exponent
 
 '''
 STARTPOINTS
 '''
-
-startPointUpdateFrequency = 1
 
 class StartPoint():
 	
 	def __init__(self, typeOfStartPoint):
 		self.startPositionSamples = 0
 		if typeOfStartPoint == 'lineIn':
-			self.lineInUpdate = pyo.Pattern(self.updateLineIn, time = startPointUpdateFrequency)
+			self.lineInUpdate = pyo.Pattern(self.updateLineIn, time = constants.START_POINT_UPDATE_FREQUENCY_SECONDS
+		)
 			self.lineInUpdateTrigger = pyo.TrigFunc(sampleCounterInitTrigger, self.lineInUpdate.play)
 		elif typeOfStartPoint == 'HFF':
-			self.HFFUpdate = pyo.Pattern(self.updateHFF, time = startPointUpdateFrequency)
+			self.HFFUpdate = pyo.Pattern(self.updateHFF, time = constants.START_POINT_UPDATE_FREQUENCY_SECONDS
+		)
 			self.BankingCollapse = pyo.TrigFunc(sampleCounterInitTrigger, self.HFFUpdate.play)
 
 	def updateLineIn(self):
 		now = int(sampleCounter.get())
 		lineMin = max(now - lineInRange, 1)
-		lineMax = max(now - lineInRangeMin, 1)
+		lineMax = max(now - constants.LINE_IN_LOOKBACK_RANGE_MIN_SAMPLES, 1)
 		self.startPositionSamples = random.randint(lineMin, lineMax)
 
 	def updateHFF(self):
@@ -227,20 +212,15 @@ class StartPoint():
 		self.startPositionSamples = int(sampleCounter.get())
 		
 # create StartPoints, 0 = lineIn, 1 = helvítis fokking fokk, remainder = manual
-noOfStartPoints = 4
-
 allStartPoints = [StartPoint('lineIn'), StartPoint('HFF')]
-for i in range(noOfStartPoints):
+for i in range(constants.NUMBER_OF_START_POINTS):
 	allStartPoints.append(StartPoint(None))
 allStartPoints = tuple(allStartPoints)
 
 '''
 SYKURMOLAR - CREATE, SELECT
 '''
-noOfSykurmolar = 4
-bitarPerSykurmoli = 10
-
-allSykurmolar = [moli.Sykurmoli(str(i), constants.SAMPLE_RATE, bitarPerSykurmoli, allTriggers, allStartPoints, audioTable) for i in range(noOfSykurmolar)]
+allSykurmolar = [moli.Sykurmoli(str(i), constants.SAMPLE_RATE, constants.BITAR_PER_SYKURMOLI, allTriggers, allStartPoints, audioTable) for i in range(constants.NUMBER_OF_SYKURMOLAR)]
 allSykurmolar = tuple(allSykurmolar)
 selectedSykurmolar = []
 
@@ -254,7 +234,7 @@ def changeSelectedSykurmolar(number):
 		selectedSykurmolar.append(number)
 		selectedSykurmolar.sort()
 	# send this to LEDs. result: LEDsArray is e.g. 1,0,0,0 if 0 is selected
-	LEDsArray = [0 for i in range(noOfSykurmolar)]
+	LEDsArray = [0 for i in range(constants.NUMBER_OF_SYKURMOLAR)]
 	for i in selectedSykurmolar:
 		LEDsArray[i] = 1
 	midiHandler.setLEDBlockArray('selectedSykurmolar', LEDsArray, ('OFF', 'ON'))
@@ -436,7 +416,7 @@ def displayFull():
 	print('-------------------')
 	# time elapsed, basic info
 	print('time:{0}/{1}m rec:{2} disk:{3}mb muted:{4}'.format(
-		int(sampleCounter.get()/constants.SAMPLE_RATE/60), programDurationMinutes, recording, diskspaceRemaining, lineInMuted
+		int(sampleCounter.get()/constants.SAMPLE_RATE/60), constants.PROGRAM_DURATION_MINUTES, recording, diskspaceRemaining, lineInMuted
 	))
 	# ammæli durations
 	print('trigs {0}:{1}s {2}:{3}s'.format(

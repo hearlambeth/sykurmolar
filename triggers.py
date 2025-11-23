@@ -1,19 +1,12 @@
 '''
 triggers that force a response from sykurmolar
 '''
-
+# local
+import constants
+from mafs import incbind
+# external
 import pyo64 as pyo
 from random import uniform, sample
-from mafs import incbind
-
-if __name__ == "__main__":
-	raise RuntimeError("Module relies on a pyo server being set up so cannot be run as main. Add code here for pyo server setup if I want to do this.")
-
-durationMultiplierSimpleLoop = 1.03
-maxDurationSimpleLoop = 20
-minDurationSimpleLoop = 0.05 #20hz
-sampleRate = 48000 # sampleRate is also defined in the main program. more reason to have some global info in a simple other script.
-maxDurationSimpleLoopSamples = int(maxDurationSimpleLoop * sampleRate)
 
 class No():
 
@@ -48,16 +41,16 @@ class SimpleLoop():
 	def incrementDuration(self, amount):
 		newDur = self.duration
 		if amount < 0:
-			if self.duration/durationMultiplierSimpleLoop >= minDurationSimpleLoop:
-				newDur = self.duration/durationMultiplierSimpleLoop
+			if self.duration/constants.SIMPLELOOP_DURATION_MULTIPLIER >= constants.SIMPLELOOP_DURATION_MIN_SECONDS:
+				newDur = self.duration/constants.SIMPLELOOP_DURATION_MULTIPLIER
 		elif amount > 0:
-			if self.duration*durationMultiplierSimpleLoop <= maxDurationSimpleLoop:
-				newDur = self.duration*durationMultiplierSimpleLoop
+			if self.duration*constants.SIMPLELOOP_DURATION_MULTIPLIER <= constants.SIMPLELOOP_DURATION_MAX_SECONDS:
+				newDur = self.duration*constants.SIMPLELOOP_DURATION_MULTIPLIER
 		self.updateDuration(newDur)
 
 	def tapTempo(self, newTime):
-		if newTime - self.latestTapTempo <= maxDurationSimpleLoopSamples:
-			self.updateDuration((newTime - self.latestTapTempo) / sampleRate)
+		if newTime - self.latestTapTempo <= constants.SIMPLELOOP_DURATION_MAX_SAMPLES:
+			self.updateDuration((newTime - self.latestTapTempo) / constants.SAMPLE_RATE)
 		self.latestTapTempo = newTime
 
 class Swung():
@@ -128,10 +121,7 @@ class Combine():
 		# after incrementing length, always changeOutputTrigger
 		self.changeOutputTrigger()
 		
-	
-primesLong = (2, 3, 5, 7, 11)
-primesShort = (13, 17, 19, 23, 29)
-
+		
 class Ammæli():
 	'''
 	a few triggers based on a SimpleLoop's duration
@@ -147,8 +137,8 @@ class Ammæli():
 		self.sampleCounter = sampleCounter
 		self.t_SimpleLoop = SimpleLoop(self.duration, name=self.name+'_simple')
 		self.t_Swung = Swung(self.t_SimpleLoop.outputTrigger, self.duration, name=self.name+'_swung')
-		self.t_PrimesLong = [SimpleLoop(x, name=self.name+'_priime') for x in self.calcDividedDurations(primesLong)]
-		self.t_PrimesShort = [SimpleLoop(x, name=self.name+'_prime') for x in self.calcDividedDurations(primesShort)]
+		self.t_PrimesLong = [SimpleLoop(x, name=self.name+'_priime') for x in self.calcDividedDurations(constants.PRIIMES)]
+		self.t_PrimesShort = [SimpleLoop(x, name=self.name+'_prime') for x in self.calcDividedDurations(constants.PRIMES)]
 		self.t_Combine = Combine([t.outputTrigger for t in self.t_PrimesLong])
 		
 
@@ -164,8 +154,8 @@ class Ammæli():
 		if self.t_SimpleLoop.duration != self.duration:
 			self.duration = self.t_SimpleLoop.duration
 			# apply to t_Primes
-			newPrimesLongDurations = self.calcDividedDurations(primesLong)
-			newPrimesShortDurations = self.calcDividedDurations(primesShort)
+			newPrimesLongDurations = self.calcDividedDurations(constants.PRIIMES)
+			newPrimesShortDurations = self.calcDividedDurations(constants.PRIMES)
 			for i in range(len(newPrimesLongDurations)):
 				self.t_PrimesLong[i].updateDuration(newPrimesLongDurations[i])
 			for i in range(len(newPrimesShortDurations)):

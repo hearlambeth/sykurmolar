@@ -3,24 +3,12 @@ a Sykurmoli is a collection of Bitar
 Biti is the audio player itself, which receives instructions from Sykurmoli as to its new values and states
 Sykurmoli creates new values on receipt of a trigger
 '''
-
+# local
+import mafs, constants
+# external
 import pyo64 as pyo
-import mafs
 import random
 from numpy.random import randint
-
-if __name__ == "__main__":
-	raise RuntimeError("Module relies on a pyo server being set up so cannot be run as main. Add code here for pyo server setup if I want to do this.")
-
-PORTAMENTOTRANSITION = 0.005 #0.005
-MAXFREEZELENGTH = 100 # 40 is easy to display on the apc40
-ENDALAUSFADE = 0.01
-VARIABLESLISTLENGTH = 1000 # randomBinomial is quite a bit faster at 500 vs 1000
-KNOBDIV = 20 # amount the knob's passed value gets divided by. basically how granular can i be with turns.
-# unreasonable caps. at octave multiplication, min = ~11 samples/second, max = entire 45m table in under a second
-PITCHMIN = -12
-PITCHMAX = 12
-
 
 '''
 ENDALAUSIR & ENDANLEGIR BITAR
@@ -38,11 +26,11 @@ class BitiEndalaus():
         # create sets of two objects, so each envelope can run to end when changing position
 		# positions = distance along table, normalised to between 0 and 1
 		self.positions = [pyo.Linseg([(0, 0), (1, 1)]).stop(), pyo.Linseg([(0, 0), (1, 1)]).stop()]
-		self.envelopes = [pyo.Fader(ENDALAUSFADE, ENDALAUSFADE), pyo.Fader(ENDALAUSFADE, ENDALAUSFADE)]
+		self.envelopes = [pyo.Fader(constants.ENDALAUS_FADE_SECONDS, constants.ENDALAUS_FADE_SECONDS), pyo.Fader(constants.ENDALAUS_FADE_SECONDS, constants.ENDALAUS_FADE_SECONDS)]
 		self.readers = [pyo.Pointer2(table = audioTable, index = self.positions[0], mul = self.envelopes[0]), 
 			pyo.Pointer2(table = audioTable, index = self.positions[1], mul = self.envelopes[1])]
-		self.panPortamentos = [pyo.SigTo(0.5, PORTAMENTOTRANSITION, init = 0.5), pyo.SigTo(0.5, PORTAMENTOTRANSITION, init = 0.5)]
-		self.volPortamentos = [pyo.SigTo(1, PORTAMENTOTRANSITION, init = 1), pyo.SigTo(1, PORTAMENTOTRANSITION, init = 1)]
+		self.panPortamentos = [pyo.SigTo(0.5, constants.PORTAMENTO_TRANSITION_SECONDS, init = 0.5), pyo.SigTo(0.5, constants.PORTAMENTO_TRANSITION_SECONDS, init = 0.5)]
+		self.volPortamentos = [pyo.SigTo(1, constants.PORTAMENTO_TRANSITION_SECONDS, init = 1), pyo.SigTo(1, constants.PORTAMENTO_TRANSITION_SECONDS, init = 1)]
 		self.envelopes[0].mul = self.volPortamentos[0]
 		self.envelopes[1].mul = self.volPortamentos[1]
 		self.outs = [pyo.Pan(self.readers[0], pan = self.panPortamentos[0]), pyo.Pan(self.readers[1], pan = self.panPortamentos[1])]
@@ -127,11 +115,11 @@ class BitiEndanlegur():
 	def __init__(self, sampleRate, audioTable):
 		self.sampleRate = sampleRate
 		self.looper = pyo.Looper(table = audioTable, start = 0, dur = 0.1, startfromloop = True).stop() # startfromloop otherwise it'll start from the beginning each time
-		self.pitchPortamento = pyo.SigTo(1, PORTAMENTOTRANSITION, init = 1)
+		self.pitchPortamento = pyo.SigTo(1, constants.PORTAMENTO_TRANSITION_SECONDS, init = 1)
 		self.looper.pitch = self.pitchPortamento
-		self.volPortamento = pyo.SigTo(1, PORTAMENTOTRANSITION, init = 1)
+		self.volPortamento = pyo.SigTo(1, constants.PORTAMENTO_TRANSITION_SECONDS, init = 1)
 		self.looper.mul = self.volPortamento
-		self.panPortamento = pyo.SigTo(0.5, PORTAMENTOTRANSITION, init = 0.5)
+		self.panPortamento = pyo.SigTo(0.5, constants.PORTAMENTO_TRANSITION_SECONDS, init = 0.5)
 		self.out = pyo.Pan(self.looper, pan = self.panPortamento)
 		#self.out = pyo.Pan(self.looper, pan = self.panPortamento).out() - simple output, bypassing Mixer
 		# initial values
@@ -314,7 +302,7 @@ class Sykurmoli():
 		for key in self.out.getKeys():
 			self.out.setAmp(key, 0, 1)
 		# assign volume control 
-		self.volPortamento = pyo.SigTo(1, PORTAMENTOTRANSITION, init = 1)
+		self.volPortamento = pyo.SigTo(1, constants.PORTAMENTO_TRANSITION_SECONDS, init = 1)
 		self.out.mul = self.volPortamento
 
 	def changeVolume(self, new):
@@ -388,12 +376,12 @@ class Sykurmoli():
 		self.display('f_','off')
 
 	def changeFreezeLength(self, amount):
-		self.freezeLength = mafs.incbind(self.freezeLength, amount, 1, MAXFREEZELENGTH)
+		self.freezeLength = mafs.incbind(self.freezeLength, amount, 1, constants.FREEZE_LENGTH_MAX)
 		self.display('f_lengd', self.freezeLength)
 
 	def reverseFreezeVariables(self):
 		# get our first indices, e.g. [998, 999, 0, 1] and reversed version [1, 0, 999, 998]
-		ind = mafs.generateIndicesList(self.freezeResetIndex, VARIABLESLISTLENGTH - 1, self.freezeLength)
+		ind = mafs.generateIndicesList(self.freezeResetIndex, constants.VARIABLES_LIST_LENGTH - 1, self.freezeLength)
 		indR = ind[::-1]
 		# swap the values using x, y = y, x
 		for i, v in enumerate(ind):
@@ -417,7 +405,7 @@ class Sykurmoli():
 	def shuffleFreezeVariables(self):
 		# see reverse, but shuffled list instead
 		# get our first indices, e.g. [998, 999, 0, 1] and shuffled version
-		ind = mafs.generateIndicesList(self.freezeResetIndex, VARIABLESLISTLENGTH - 1, self.freezeLength)
+		ind = mafs.generateIndicesList(self.freezeResetIndex, constants.VARIABLES_LIST_LENGTH - 1, self.freezeLength)
 		indR = list(ind) # a copy
 		random.shuffle(indR)
 		# swap the values using x, y = y, x
@@ -514,29 +502,29 @@ class Sykurmoli():
 	#	BIAS
 
 	def createAudibleList(self):
-		self.audibleList = [mafs.randomBinomial(self.audibleBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.audibleList = [mafs.randomBinomial(self.audibleBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createDirectionList(self):
-		self.directionList = [mafs.randomBinomial(self.directionBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.directionList = [mafs.randomBinomial(self.directionBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createEndarList(self):
-		self.endarList = [mafs.randomBinomial(self.endarBias, VARIABLESLISTLENGTH)  for i in range(self.numberOfBitar)]
+		self.endarList = [mafs.randomBinomial(self.endarBias, constants.VARIABLES_LIST_LENGTH)  for i in range(self.numberOfBitar)]
 
 	def createLengthList(self):
 		# for the time being, do use triangular, but replace it soon
 		# old code created ranges and set lengths as uniform distributions across those ranges:
 		# <0.33: 0.05 to 0.2; <0.66: 0.1 to 1; else, 0.5 to 3
 		# on tests, even bias of 0.01 goes nowhere near the minimum and contains values over 0.5
-		self.lengthList = [mafs.randomBeta(0, 1, self.lengthBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.lengthList = [mafs.randomBeta(0, 1, self.lengthBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createPanList(self):
 		#panMin = max(self.panCenter - self.panSpread, 0)
 		#panMax = min(self.panCenter + self.panSpread, 1)
-		self.panList = [mafs.randomBeta(self.panMin, self.panMax, self.panBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.panList = [mafs.randomBeta(self.panMin, self.panMax, self.panBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createPitchMacroList(self):
 		self.pitchMacroList = [
-			[int(round(j, 0)) * self.pitchMacroMultiplier for j in mafs.randomBeta(self.pitchMacroMin, self.pitchMacroMax, self.pitchMacroBias, VARIABLESLISTLENGTH)]
+			[int(round(j, 0)) * self.pitchMacroMultiplier for j in mafs.randomBeta(self.pitchMacroMin, self.pitchMacroMax, self.pitchMacroBias, constants.VARIABLES_LIST_LENGTH)]
 			  for i in range(self.numberOfBitar)
 			  ]
 		'''= a bunch of these: pitchMacro = mafs.randomTriangular(self.pitchMacroMin, self.pitchMacroMax, self.pitchMacroBias, VARIABLESLISTLENGTH)
@@ -544,7 +532,7 @@ class Sykurmoli():
 		self.pitchMacroList = [int(round(i, 0)) * self.pitchMacroMultiplier for i in pitchMacro]'''
 
 	def createPitchMicroList(self):
-		self.pitchMicroList = [mafs.randomBeta(self.pitchMicroMin, self.pitchMicroMax, self.pitchMicroBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.pitchMicroList = [mafs.randomBeta(self.pitchMicroMin, self.pitchMicroMax, self.pitchMicroBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createStartPointList(self):
 		'''
@@ -553,7 +541,7 @@ class Sykurmoli():
 		s = self.startPoints[self.startPointIndex].startPositionSamples
 		self.startPointList = [
 				#self.newStartPoint(self.startPointIndex) for j in range(VARIABLESLISTLENGTH)
-				randint(low = s - self.startPointOffset, high = s + self.startPointOffset, size = VARIABLESLISTLENGTH).tolist() for i in range(self.numberOfBitar)
+				randint(low = s - self.startPointOffset, high = s + self.startPointOffset, size = constants.VARIABLES_LIST_LENGTH).tolist() for i in range(self.numberOfBitar)
 		]
 
 	def createStartPointIndices(self):
@@ -561,75 +549,75 @@ class Sykurmoli():
 		# (if index = 0) get new line value
 		# if startPointIndex is actually 0 ... just returns 0
 		if self.startPointIndex == 0:
-			self.startPointIndices = [[0 for j in range(VARIABLESLISTLENGTH)] for i in range(self.numberOfBitar)]
+			self.startPointIndices = [[0 for j in range(constants.VARIABLES_LIST_LENGTH)] for i in range(self.numberOfBitar)]
 		else:
 			self.startPointIndices = [
 				[
-					self.startPointIndex if j else 0 for j in mafs.randomBinomial(1 - self.lineInInterruptBias, VARIABLESLISTLENGTH)
+					self.startPointIndex if j else 0 for j in mafs.randomBinomial(1 - self.lineInInterruptBias, constants.VARIABLES_LIST_LENGTH)
 					]
 				for i in range(self.numberOfBitar)
 			]
 	
 	def createVolumeList(self):
-		self.volumeList = [mafs.randomBeta(self.volumeMin, self.volumeMax, self.volumeBias, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.volumeList = [mafs.randomBeta(self.volumeMin, self.volumeMax, self.volumeBias, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	#	RESPONSE
 
 	def createGlobalResponseList(self):
-		self.globalResponseList = [mafs.randomBinomial(self.globalResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.globalResponseList = [mafs.randomBinomial(self.globalResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createAudibleResponseList(self):
-		self.audibleResponseList = [mafs.randomBinomial(self.audibleResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.audibleResponseList = [mafs.randomBinomial(self.audibleResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createDirectionResponseList(self):
-		self.directionResponseList = [mafs.randomBinomial(self.directionResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.directionResponseList = [mafs.randomBinomial(self.directionResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createEndarResponseList(self):
-		self.endarResponseList = [mafs.randomBinomial(self.endarResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.endarResponseList = [mafs.randomBinomial(self.endarResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createLengthResponseList(self):
-		self.lengthResponseList = [mafs.randomBinomial(self.lengthResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.lengthResponseList = [mafs.randomBinomial(self.lengthResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createPanResponseList(self):
-		self.panResponseList = [mafs.randomBinomial(self.panResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.panResponseList = [mafs.randomBinomial(self.panResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createPitchMacroResponseList(self):
-		self.pitchMacroResponseList = [mafs.randomBinomial(self.pitchMacroResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.pitchMacroResponseList = [mafs.randomBinomial(self.pitchMacroResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createPitchMicroResponseList(self):
-		self.pitchMicroResponseList = [mafs.randomBinomial(self.pitchMicroResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.pitchMicroResponseList = [mafs.randomBinomial(self.pitchMicroResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createStartPointResponseList(self):
-		self.startPointResponseList = [mafs.randomBinomial(self.startPointResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.startPointResponseList = [mafs.randomBinomial(self.startPointResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	def createVolumeResponseList(self):
-		self.volumeResponseList = [mafs.randomBinomial(self.volumeResponse, VARIABLESLISTLENGTH) for i in range(self.numberOfBitar)]
+		self.volumeResponseList = [mafs.randomBinomial(self.volumeResponse, constants.VARIABLES_LIST_LENGTH) for i in range(self.numberOfBitar)]
 
 	# 	CHANGING 'BIAS'
 
 	def changeAudibleBias(self, amount):
-		new = mafs.incbind(self.audibleBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.audibleBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.audibleBias:
 			self.audibleBias = new
 			self.createAudibleList()
 		self.display('audible_bias', self.audibleBias)
 
 	def changeDirectionBias(self, amount):
-		new = mafs.incbind(self.directionBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.directionBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.directionBias:
 			self.directionBias = new
 			self.createDirectionList()
 		self.display('direction_bias', self.directionBias)
 
 	def changeEndarBias(self, amount):
-		new = mafs.incbind(self.endarBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.endarBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.endarBias:
 			self.endarBias = new
 			self.createEndarList()
 		self.display('endar_bias', self.endarBias)
 
 	def changeLengthBias(self, amount):
-		new = mafs.incbind(self.lengthBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.lengthBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.lengthBias:
 			self.lengthBias = new
 			self.createLengthList()
@@ -638,7 +626,7 @@ class Sykurmoli():
 	def changeLineInInterruptBias(self, amount):
 		# bias but not a set - doesn't have a "changes" pair
 		# create just startPointIndices, which tells us in respondToTrigger to create a new start value based on current position
-		new = mafs.incbind(self.lineInInterruptBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.lineInInterruptBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.lineInInterruptBias:
 			self.lineInInterruptBias = new
 			self.createStartPointIndices()
@@ -646,28 +634,28 @@ class Sykurmoli():
 
 
 	def changePanBias(self, amount):
-		new = mafs.incbind(self.panBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.panBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.panBias:
 			self.panBias = new
 			self.createPanList()
 		self.display('pönnukaka_bias', self.panBias)
 
 	def changePitchMacroBias(self, amount):
-		new = mafs.incbind(self.pitchMacroBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.pitchMacroBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.pitchMacroBias:
 			self.pitchMacroBias = new
 			self.createPitchMacroList()
 		self.display('PITCH_bias', self.pitchMacroBias)
 
 	def changePitchMicroBias(self, amount):
-		new = mafs.incbind(self.pitchMicroBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.pitchMicroBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.pitchMicroBias:
 			self.pitchMicroBias = new
 			self.createPitchMicroList()
 		self.display('pitch_bias', self.pitchMicroBias)
 
 	def changeVolumeBias(self, amount):
-		new = mafs.incbind(self.volumeBias, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.volumeBias, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.volumeBias:
 			self.volumeBias = new
 			self.createVolumeList()
@@ -676,70 +664,70 @@ class Sykurmoli():
 	# 	CHANGING 'RESPONSE'
 
 	def changeGlobalResponse(self, amount):
-		new = mafs.incbind(self.globalResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.globalResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.globalResponse:
 			self.globalResponse = new
 			self.createGlobalResponseList()
 		self.display('allt_sv', self.globalResponse)
 
 	def changeAudibleResponse(self, amount):
-		new = mafs.incbind(self.audibleResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.audibleResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.audibleResponse:
 			self.audibleResponse = new
 			self.createAudibleResponseList()
 		self.display('audible_sv', self.audibleResponse)
 
 	def changeDirectionResponse(self, amount):
-		new = mafs.incbind(self.directionResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.directionResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.directionResponse:
 			self.directionResponse = new
 			self.createDirectionResponseList()
 		self.display('direction_sv', self.directionResponse)
 
 	def changeEndarResponse(self, amount):
-		new = mafs.incbind(self.endarResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.endarResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.endarResponse:
 			self.endarResponse = new
 			self.createEndarResponseList()
 		self.display('endar_sv', self.endarResponse)
 
 	def changeLengthResponse(self, amount):
-		new = mafs.incbind(self.lengthResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.lengthResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.lengthResponse:
 			self.lengthResponse = new
 			self.createLengthResponseList()
 		self.display('lengd_sv', self.lengthResponse)
 
 	def changePanResponse(self, amount):
-		new = mafs.incbind(self.panResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.panResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.panResponse:
 			self.panResponse = new
 			self.createPanResponseList()
 		self.display('pönnukaka_sv', self.panResponse)
 
 	def changePitchMacroResponse(self, amount):
-		new = mafs.incbind(self.pitchMacroResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.pitchMacroResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.pitchMacroResponse:
 			self.pitchMacroResponse = new
 			self.createPitchMacroResponseList()
 		self.display('PITCH_sv', self.pitchMacroResponse)
 
 	def changePitchMicroResponse(self, amount):
-		new = mafs.incbind(self.pitchMicroResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.pitchMicroResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.pitchMicroResponse:
 			self.pitchMicroResponse = new
 			self.createPitchMicroResponseList()
 		self.display('pitch_sv', self.pitchMicroResponse)
 
 	def changeStartPointResponse(self, amount):
-		new = mafs.incbind(self.startPointResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.startPointResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.startPointResponse:
 			self.startPointResponse = new
 			self.createStartPointResponseList()
 		self.display('startpoint_sv', self.startPointResponse)
 
 	def changeVolumeResponse(self, amount):
-		new = mafs.incbind(self.volumeResponse, amount / KNOBDIV, 0, 1)
+		new = mafs.incbind(self.volumeResponse, amount / constants.KNOB_DIV, 0, 1)
 		if new != self.volumeResponse:
 			self.volumeResponse = new
 			self.createVolumeResponseList()
@@ -752,7 +740,7 @@ class Sykurmoli():
 	# 		PAN
 
 	def changePanMin(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		new = mafs.newMinimum(amount, self.panMin, self.panMax, 0, 1)
 		if new != self.panMin:
 			self.panMin = new
@@ -760,7 +748,7 @@ class Sykurmoli():
 		self.display('pönnuköku_min', self.panMin)
 
 	def changePanMax(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		new = mafs.newMaximum(amount, self.panMin, self.panMax, 0, 1)
 		if new != self.panMax:
 			self.panMax = new
@@ -768,7 +756,7 @@ class Sykurmoli():
 		self.display('pönnuköku_max', self.panMax)
 
 	def changePanMid(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		newMin, newMax = mafs.newFromMiddle(amount, self.panMin, self.panMax, 0, 1)
 		if newMin != self.panMin:
 			self.panMin, self.panMax = newMin, newMax
@@ -777,7 +765,7 @@ class Sykurmoli():
 		self.display('pönnuköku_max', self.panMax)
 
 	def changePanSpread(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		newMin, newMax = mafs.newFromSpread(amount, self.panMin, self.panMax, 0, 1)
 		if newMin != self.panMin or newMax != self.panMax:
 			self.panMin, self.panMax = newMin, newMax
@@ -789,7 +777,7 @@ class Sykurmoli():
 
 	def changePitchMacroMin(self, amount):
 		# amount unchanged
-		new = mafs.newMinimum(amount, self.pitchMacroMin, self.pitchMacroMax, PITCHMIN, PITCHMAX)
+		new = mafs.newMinimum(amount, self.pitchMacroMin, self.pitchMacroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if new != self.pitchMacroMin:
 			self.pitchMacroMin = new
 			self.createPitchMacroList()
@@ -797,7 +785,7 @@ class Sykurmoli():
 
 	def changePitchMacroMax(self, amount):
 		# amount unchanged
-		new = mafs.newMaximum(amount, self.pitchMacroMin, self.pitchMacroMax, PITCHMIN, PITCHMAX)
+		new = mafs.newMaximum(amount, self.pitchMacroMin, self.pitchMacroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if new != self.pitchMacroMax:
 			self.pitchMacroMax = new
 			self.createPitchMacroList()
@@ -805,7 +793,7 @@ class Sykurmoli():
 
 	def changePitchMacroMid(self, amount):
 		# amount unchanged
-		newMin, newMax = mafs.newFromMiddle(amount, self.pitchMacroMin, self.pitchMacroMax, PITCHMIN, PITCHMAX)
+		newMin, newMax = mafs.newFromMiddle(amount, self.pitchMacroMin, self.pitchMacroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if newMin != self.pitchMacroMin:
 			self.pitchMacroMin, self.pitchMacroMax = newMin, newMax
 			self.createPitchMacroList()
@@ -814,7 +802,7 @@ class Sykurmoli():
 
 	def changePitchMacroSpread(self, amount):
 		# amount unchanged
-		newMin, newMax = mafs.newFromSpread(amount, self.pitchMacroMin, self.pitchMacroMax, PITCHMIN, PITCHMAX)
+		newMin, newMax = mafs.newFromSpread(amount, self.pitchMacroMin, self.pitchMacroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if newMin != self.pitchMacroMin or newMax != self.pitchMacroMax:
 			self.pitchMacroMin, self.pitchMacroMax = newMin, newMax
 			self.createPitchMacroList()
@@ -824,24 +812,24 @@ class Sykurmoli():
 	# 		PITCHMICRO
 
 	def changePitchMicroMin(self, amount):
-		amount /= KNOBDIV
-		new = mafs.newMinimum(amount, self.pitchMicroMin, self.pitchMicroMax, PITCHMIN, PITCHMAX)
+		amount /= constants.KNOB_DIV
+		new = mafs.newMinimum(amount, self.pitchMicroMin, self.pitchMicroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if new != self.pitchMicroMin:
 			self.pitchMicroMin = new
 			self.createPitchMicroList()
 		self.display('pitch_min', self.pitchMicroMin)
 
 	def changePitchMicroMax(self, amount):
-		amount /= KNOBDIV
-		new = mafs.newMaximum(amount, self.pitchMicroMin, self.pitchMicroMax, PITCHMIN, PITCHMAX)
+		amount /= constants.KNOB_DIV
+		new = mafs.newMaximum(amount, self.pitchMicroMin, self.pitchMicroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if new != self.pitchMicroMax:
 			self.pitchMicroMax = new
 			self.createPitchMicroList()
 		self.display('pitch_max', self.pitchMicroMax)
 
 	def changePitchMicroMid(self, amount):
-		amount /= KNOBDIV
-		newMin, newMax = mafs.newFromMiddle(amount, self.pitchMicroMin, self.pitchMicroMax, PITCHMIN, PITCHMAX)
+		amount /= constants.KNOB_DIV
+		newMin, newMax = mafs.newFromMiddle(amount, self.pitchMicroMin, self.pitchMicroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if newMin != self.pitchMicroMin:
 			self.pitchMicroMin, self.pitchMicroMax = newMin, newMax
 			self.createPitchMicroList()
@@ -849,8 +837,8 @@ class Sykurmoli():
 		self.display('pitch_max', self.pitchMicroMax)
 
 	def changePitchMicroSpread(self, amount):
-		amount /= KNOBDIV
-		newMin, newMax = mafs.newFromSpread(amount, self.pitchMicroMin, self.pitchMicroMax, PITCHMIN, PITCHMAX)
+		amount /= constants.KNOB_DIV
+		newMin, newMax = mafs.newFromSpread(amount, self.pitchMicroMin, self.pitchMicroMax, constants.PITCH_MIN, constants.PITCH_MAX)
 		if newMin != self.pitchMicroMin or newMax != self.pitchMicroMax:
 			self.pitchMicroMin, self.pitchMicroMax = newMin, newMax
 			self.createPitchMacroList()
@@ -860,7 +848,7 @@ class Sykurmoli():
 	# 		VOLUME
 
 	def changeVolumeMin(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		new = mafs.newMinimum(amount, self.volumeMin, self.volumeMax, 0, 1)
 		if new != self.volumeMin:
 			self.volumeMin = new
@@ -868,7 +856,7 @@ class Sykurmoli():
 		self.display('volume_min', self.volumeMin)
 
 	def changeVolumeMax(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		new = mafs.newMaximum(amount, self.volumeMin, self.volumeMax, 0, 1)
 		if new != self.volumeMax:
 			self.volumeMax = new
@@ -876,7 +864,7 @@ class Sykurmoli():
 		self.display('volume_max', self.volumeMax)
 
 	def changeVolumeMid(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		newMin, newMax = mafs.newFromMiddle(amount, self.volumeMin, self.volumeMax, 0, 1)
 		if newMin != self.volumeMin:
 			self.volumeMin, self.volumeMax = newMin, newMax
@@ -885,7 +873,7 @@ class Sykurmoli():
 		self.display('volume_max', self.volumeMax)
 
 	def changeVolumeSpread(self, amount):
-		amount /= KNOBDIV
+		amount /= constants.KNOB_DIV
 		newMin, newMax = mafs.newFromSpread(amount, self.volumeMin, self.volumeMax, 0, 1)
 		if newMin != self.volumeMin or newMax != self.volumeMin:
 			self.volumeMin, self.volumeMax = newMin, newMax
@@ -942,7 +930,7 @@ class Sykurmoli():
 		'''
 		# main index
 		if not self.freeze:
-			self.i = mafs.iterate(self.i, VARIABLESLISTLENGTH - 1)
+			self.i = mafs.iterate(self.i, constants.VARIABLES_LIST_LENGTH - 1)
 		elif self.freeze:
 			# if freezing, iterate forward or jump back to the freeze reset
 			self.freezeCounter += 1
@@ -950,9 +938,9 @@ class Sykurmoli():
 				self.freezeCounter = 1
 				self.i = self.freezeResetIndex
 			else:
-				self.i = mafs.iterate(self.i, VARIABLESLISTLENGTH - 1)
+				self.i = mafs.iterate(self.i, constants.VARIABLES_LIST_LENGTH - 1)
 		# mobile index
-		self.iMobile = mafs.iterate(self.iMobile, VARIABLESLISTLENGTH - 1)
+		self.iMobile = mafs.iterate(self.iMobile, constants.VARIABLES_LIST_LENGTH - 1)
 
 		# STOP ENDING BITAR
 		# endingBitar are no longer in activeBitar so need stopping explicitly
