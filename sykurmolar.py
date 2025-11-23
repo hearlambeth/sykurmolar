@@ -17,7 +17,7 @@ import moli
 import triggers
 # external imports
 import pyo64 as pyo
-import subprocess, sys, os, shutil, random
+import sys, os, shutil, random
 from time import strftime
 
 '''

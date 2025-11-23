@@ -5,10 +5,8 @@ a lot of unused/unfinished/dropped functions here
 '''
 
 import numpy
-from scipy.stats import truncnorm
 from math import ceil, isclose
 from random import randrange
-from sympy import prevprime
 
 '''
 PROBABILITY DISTRIBUTIONS
@@ -23,6 +21,7 @@ def randomBinomial(bias, size):
 
 #sd = 0.05 # standard deviation
 
+'''
 def randomTruncNormal(minimum, maximum, bias, size):
 	# UNUSED
 	# truncated normal distribution between minimum and maximum
@@ -40,7 +39,7 @@ def randomTruncNormal(minimum, maximum, bias, size):
 		# create distribution
 		return truncnorm.rvs(
 			(minimum-bias)/sd, (maximum-bias)/sd, loc=bias, scale=sd, size=size
-		).tolist()
+		).tolist()'''
 	
 def randomBeta(minimum, maximum, bias, size):
 	'''
@@ -404,6 +403,8 @@ for i in range(-31, 32):
 CALCULATING THE PRIME RANGES OF TRIGGERS' PRIME DIVISIONS
 '''
 
+'''
+UNUSED
 def PrimeDivisionBallparks(maxSeconds, minSeconds, sampleRate, targetSamples):
 	# variables
 	maxSeconds = maxSeconds
@@ -424,6 +425,6 @@ def PrimeDivisionBallparks(maxSeconds, minSeconds, sampleRate, targetSamples):
 			value.append(prevprime(value[-1]))
 			value.append(prevprime(value[-1]))
 		outputDictionary[key] = value
-	return outputDictionary
+	return outputDictionary'''
 
 #print(PrimeDivisionBallparks(10, 0.3, 48000, (100, 500, 2000)))
