@@ -40,12 +40,14 @@ bash jack_start.sh
 	- tailor text output to raspberry pi screen space limitations
 	- pi boot routine: shell scripts, then sykurmolar
 - improve visual feedback of sounds occurring (esp. LEDs)
+- improve text output generally (done triggers, displayFull, more?)
 - print more/fix labels
-- update some LED positions
-- make helvítis fokking fokk move every trigger - too much?
+- make helvítis fokking fokk move every trigger - how? create a list of start points all over the shop?
 - add limiter so a direct recording can be useful
 - make trigger type that loops randomized complex rhythms
 - make trigger type that loops tapped rhythms
-- trigger type "combine", "periodic interruption" - abandon?
-- shortern the primes
+- trigger type "combine" - abandon?
 - learn how to make use of individual response values for each parameter
+- make a constants file to place all constants
+- fix bug: sometimes some knob LEDs fail to turn off on start
+- (long term) preset save, start. save all sykurmolar variables to a json, loaded like newAll.

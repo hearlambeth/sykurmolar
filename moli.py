@@ -14,7 +14,6 @@ if __name__ == "__main__":
 
 PORTAMENTOTRANSITION = 0.005 #0.005
 MAXFREEZELENGTH = 100 # 40 is easy to display on the apc40
-STARTPOINTOFFSETMIN = 200
 ENDALAUSFADE = 0.01
 VARIABLESLISTLENGTH = 1000 # randomBinomial is quite a bit faster at 500 vs 1000
 KNOBDIV = 20 # amount the knob's passed value gets divided by. basically how granular can i be with turns.
@@ -284,17 +283,17 @@ class Sykurmoli():
 		print('--- sykurmoli {0} ---'.format(self.name))
 		# line2: top info
 		print('bitar:{0} trig:{1} start:{2} freeze:{3}'.format(
-			self.noOfActiveBitar, self.respondsToTriggerIndex, self.startPointIndex, self.freezeLength
+			self.noOfActiveBitar, self.triggers[self.respondsToTriggerIndex].name, self.startPointIndex, self.freezeLength
 		))
-		# line3: bias sets with max/min/bias/change
-		print('pan: {0:.2f} {1:.2f} [{2:.2f} {3:.2f}] PITCH[x{4}]: {5:.2f} {6:.2f} [{7:.2f} {8:.2f}] pitch: {9:.2f} {10:.2f} [{11:.2f} {12:.2f}] volume: {13:.2f} {14:.2f} [{15:.2f} {16:.2f}]'.format(
+		# bias sets with max/min/bias/change
+		print('pan\t{0:.2f} {1:.2f} [{2:.2f} {3:.2f}]\nPI[x{4}]\t{5:.2f} {6:.2f} [{7:.2f} {8:.2f}]\npi\t{9:.2f} {10:.2f} [{11:.2f} {12:.2f}]\nvol\t{13:.2f} {14:.2f} [{15:.2f} {16:.2f}]'.format(
 			self.panMax, self.panMin, self.panBias, self.panResponse,
 			self.pitchMacroMultiplier, self.pitchMacroMax, self.pitchMacroMin, self.pitchMacroBias, self.pitchMacroResponse,
 			self.pitchMicroMax, self.pitchMicroMin, self.pitchMicroBias, self.pitchMicroResponse,
 			self.volumeMax, self.volumeMin, self.volumeBias, self.volumeResponse
 		))
-		# line4: bias sets with just bias/change
-		print('heyran: {0:.2f} {1:.2f} endar: {2:.2f} {3:.2f} lengd: {4:.2f} {5:.2f} dir: {6:.2f} {7:.2f}'.format(
+		# bias sets with just bias/change
+		print('heyran\t{0:.2f} {1:.2f}\nendar\t{2:.2f} {3:.2f}\nlengd\t{4:.2f} {5:.2f}\ndir\t{6:.2f} {7:.2f}'.format(
 			self.audibleBias, self.audibleResponse, self.endarBias, self.endarResponse,
 			self.lengthBias, self.lengthResponse, self.directionBias, self.directionResponse
 		))
@@ -360,7 +359,8 @@ class Sykurmoli():
 		if index < len(self.triggers):
 			self.respondsToTriggerIndex = index
 			self.triggerResponder.setInput(self.triggers[index].outputTrigger, fadetime = 0)
-			self.display('trigger', index)
+			#self.display('trigger', index)
+			self.display('t_' + self.triggers[index].name)
 
 	def changeTriggerSourceChoice(self, rangeTuple):
 		# choose across a range of trigger sources
@@ -466,8 +466,6 @@ class Sykurmoli():
 		self.display('startindex', index)
 
 	def changeStartPointOffsetMax(self, amount):
-		# old: receives an amount as -1 or 1. multiplies by 2000 to get increment (0-24000, 12 settings)
-		#     self.startPointOffset = mafs.incbind(self.startPointOffset, amount * 1000, STARTPOINTOFFSETMIN, self.startPointOffsetMax)
 		# receives an amount, which is one of: 200, 5000, 24000
 		self.startPointOffset = amount
 		self.createStartPointList()

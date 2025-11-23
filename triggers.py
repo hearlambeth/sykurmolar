@@ -17,20 +17,23 @@ maxDurationSimpleLoopSamples = int(maxDurationSimpleLoop * sampleRate)
 
 class No():
 
-	def __init__(self):
+	def __init__(self, name='nei'):
 		self.outputTrigger = pyo.Trig() # it'll never work
+		self.name = name
 
 class Manual():
 
-	def __init__(self):
+	def __init__(self, name='manual'):
 		self.outputTrigger = pyo.Trig() # call .play() to play
+		self.name = name
 
 class SimpleLoop():
 
-	def __init__(self, duration):
+	def __init__(self, duration, name='simple'):
 		self.duration = duration
 		self.outputTrigger = pyo.Metro(time = self.duration).play()
 		self.latestTapTempo = 0 # in samples
+		self.name = name
 
 	def updateDuration(self, new):
 		new = round(new, 5)
@@ -64,7 +67,7 @@ class Swung():
 	ADD: control amount of swing
 	'''
 
-	def __init__(self, trigger, duration):
+	def __init__(self, trigger, duration, name='swung'):
 		self.inputTrigger = trigger
 		self.outputTrigger = pyo.Trig()
 		self.maxSwingDuration = duration/2
@@ -72,6 +75,7 @@ class Swung():
 		self.swing = self.minSwingDuration #seconds - this is 20hz so minimum perceivable
 		# create response to an input trigger
 		self.responder = pyo.TrigFunc(self.inputTrigger, self.delayTriggerPlay)
+		self.name = name
 
 	def updateMaxSwingDuration(self, newDuration):
 		self.maxSwingDuration = newDuration/2
@@ -92,18 +96,10 @@ class Swung():
 class Random():
 	# basic random trigger
 
-	def __init__(self, density):
+	def __init__(self, density, name='snigill'):
 		self.outputTrigger = pyo.Cloud(density = density).play()
+		self.name = name
 
-class PeriodicInterruption():
-	'''
-	NOT CODED
-	lets through one input continually (e.g. a Swung), and a selection from the other input for periodic intervals
-	knob control over periodicity (time on vs off?)
-	'''
-
-	def __init__(self):
-		return
 	
 class Combine():
 	'''
@@ -113,12 +109,13 @@ class Combine():
 	receives the outputTriggers as triggersList
 	in my application in Ammæli below, this is something of a prime phased rhythm generator
 	'''
-	def __init__(self, triggersList):
+	def __init__(self, triggersList, name='combine'):
 		self.triggersList = triggersList
 		self.maxLength = len(self.triggersList)
 		self.currentLength = 2
 		# i don't think this is working - seems to only be one of the triggers, not all
 		self.outputTrigger = pyo.Percent([self.triggersList[0], self.triggersList[1]], 100)
+		self.name = name
 
 	def changeOutputTrigger(self):
 		self.outputTrigger.setInput([self.triggersList[i-1] for i in sample(range(1, self.maxLength), self.currentLength)])
@@ -142,18 +139,19 @@ class Ammæli():
 		SimpleLoop: incrementDuration
 		Swung: incrementSwing
 		Combine: incrementLength
-		PeriodicInterruption: interruptPeriodicity
 	'''
 
-	def __init__(self, duration, sampleCounter):
+	def __init__(self, duration, sampleCounter, name='ammæli'):
+		self.name = name
 		self.duration = duration
 		self.sampleCounter = sampleCounter
-		self.t_SimpleLoop = SimpleLoop(self.duration)
-		self.t_Swung = Swung(self.t_SimpleLoop.outputTrigger, self.duration)
-		self.t_PrimesLong = [SimpleLoop(x) for x in self.calcDividedDurations(primesLong)]
-		self.t_PrimesShort = [SimpleLoop(x) for x in self.calcDividedDurations(primesShort)]
+		self.t_SimpleLoop = SimpleLoop(self.duration, name=self.name+'_simple')
+		self.t_Swung = Swung(self.t_SimpleLoop.outputTrigger, self.duration, name=self.name+'_swung')
+		self.t_PrimesLong = [SimpleLoop(x, name=self.name+'_priime') for x in self.calcDividedDurations(primesLong)]
+		self.t_PrimesShort = [SimpleLoop(x, name=self.name+'_prime') for x in self.calcDividedDurations(primesShort)]
 		self.t_Combine = Combine([t.outputTrigger for t in self.t_PrimesLong])
-		# add when coded: t_PeriodicInterruption. use t_PrimesShort
+		
+
 
 	def display(self, value):
 		print(value)

@@ -1,8 +1,4 @@
 '''
-to do:
-- HFF: pattern for changing needs to be more random, as at high speeds the 1-second-per-change is obvious
-- add limiter for clipping-safe recording?
-
 on computer:
 	- must run prestart then jack_start manually before script. þetta reddast
 on raspberry pi:
@@ -11,6 +7,7 @@ on raspberry pi:
 IMPORTS
 '''
 # local imports
+import constants
 import midi
 import midiToFunction
 import moli
@@ -24,12 +21,6 @@ from time import strftime
 SETUP
 '''
 
-# JACK parameters
-# jack setup to use is: /usr/bin/jackd -v -R -dalsa -dhw:CODEC -r48000 -p512 -n8
-# this is 
-periodsPerBuffer = 8
-bufferSize = 512
-sampleRate = 48000
 '''
 if len(sys.argv) < 2:
 	raise RuntimeError("Must run with argument 0 or 1 (shell & jack externally VS attempted in-script)")
@@ -57,7 +48,7 @@ pyoServer.start()
 AUDIO STREAM
 '''
 programDurationMinutes = 45
-audioTableDurationSamples = sampleRate * 60 * programDurationMinutes
+audioTableDurationSamples = constants.SAMPLE_RATE * 60 * programDurationMinutes
 audioTable = pyo.DataTable(audioTableDurationSamples, chnls=2)
 
 '''
@@ -160,8 +151,8 @@ TRIGGERS - CREATION
 
 # allTriggers length = 33
 # each trigger in allTriggers has an outputTrigger that can be listened to
-# need to add: nya! for each sykurmoli, somehow (??? do i?)
-ammæli = (triggers.Ammæli(3, sampleCounter), triggers.Ammæli(8, sampleCounter))
+# each trigger has as name
+ammæli = (triggers.Ammæli(3, sampleCounter, name='a0'), triggers.Ammæli(8, sampleCounter, name='a1'))
 
 allTriggers = (
 	# singles (indices 0-7)
@@ -175,7 +166,7 @@ allTriggers = (
 	ammæli[1].t_Combine,
 	# groupings of 5
 	# indices 8-12
-	triggers.Random(20), triggers.Random(7), triggers.Random(2), triggers.Random(0.4), triggers.Random(0.1),
+	triggers.Random(20, name='snigill4'), triggers.Random(7, name='snigill3'), triggers.Random(2, name='snigill2'), triggers.Random(0.4, name='snigill1'), triggers.Random(0.1, name='snigill0'),
 	# 13-17
 	ammæli[0].t_PrimesLong[0], ammæli[0].t_PrimesLong[1], ammæli[0].t_PrimesLong[2], ammæli[0].t_PrimesLong[3], ammæli[0].t_PrimesLong[4],
 	# 18-22
@@ -193,7 +184,7 @@ LINEIN RANGE FOR STARTPOINTS
 
 defines the time before now that StartPoint of type lineIn can pick
 '''
-lineInRangeMin = int(2.6 * sampleRate) # can this be lower? with a lower xruns pc?
+lineInRangeMin = int(2.6 * constants.SAMPLE_RATE) # can this be lower? with a lower xruns pc?
 lineInRange = lineInRangeMin
 
 def updateLineInRange(new):
@@ -249,7 +240,7 @@ SYKURMOLAR - CREATE, SELECT
 noOfSykurmolar = 4
 bitarPerSykurmoli = 10
 
-allSykurmolar = [moli.Sykurmoli(str(i), sampleRate, bitarPerSykurmoli, allTriggers, allStartPoints, audioTable) for i in range(noOfSykurmolar)]
+allSykurmolar = [moli.Sykurmoli(str(i), constants.SAMPLE_RATE, bitarPerSykurmoli, allTriggers, allStartPoints, audioTable) for i in range(noOfSykurmolar)]
 allSykurmolar = tuple(allSykurmolar)
 selectedSykurmolar = []
 
@@ -440,12 +431,18 @@ def disambiguateTriggerFunction(functionsData, newValue):
 FULL INFO DISPLAY
 '''
 def displayFull():
-	diskspaceRemaining = shutil.disk_usage("/").free/1000000
-	# line: time elapsed, basic info
-	print('time:{0}/{1}m recording:{2} disk:{3}mb muted:{4}'.format(
-		int(sampleCounter.get()/sampleRate/60), programDurationMinutes, recording, diskspaceRemaining, lineInMuted
+	diskspaceRemaining = int(shutil.disk_usage("/").free/1000000)
+	# clean
+	print('-------------------')
+	# time elapsed, basic info
+	print('time:{0}/{1}m rec:{2} disk:{3}mb muted:{4}'.format(
+		int(sampleCounter.get()/constants.SAMPLE_RATE/60), programDurationMinutes, recording, diskspaceRemaining, lineInMuted
 	))
-	# line: display full for each moli selected
+	# ammæli durations
+	print('trigs {0}:{1}s {2}:{3}s'.format(
+		ammæli[0].name, ammæli[0].duration, ammæli[1].name, ammæli[1].duration
+	))
+	# display full for each moli selected
 	for moli in selectedSykurmolar:
 		allSykurmolar[moli].displayFull()
 
