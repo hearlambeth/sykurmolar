@@ -42,7 +42,7 @@ bash jack_start.sh
 - improve visual feedback of sounds occurring (esp. LEDs)
 - improve text output generally (done triggers, displayFull, more?)
 - print more/fix labels
-- make helvítis fokking fokk move every trigger - how? create a list of start points all over the shop?
+- helvítis fokking fokk cannot work right now. commented out.
 - add limiter so a direct recording can be useful
 - make trigger type that loops randomized complex rhythms
 - make trigger type that loops tapped rhythms

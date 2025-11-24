@@ -82,7 +82,7 @@ LEDBlocks = {
 		'b_GRID_B1', 'b_GRID_B2', 'b_GRID_B3', 'b_GRID_B4', 'b_GRID_B5', 'b_GRID_B7', 'b_GRID_B9',
 		'b_GRID_C1', 'b_GRID_C2', 'b_GRID_C3', 'b_GRID_C4', 'b_GRID_C5', 'b_GRID_C7', 'b_GRID_C9',
 		'b_GRID_D1', 'b_GRID_D3', 'b_GRID_D4', 'b_GRID_D5', 'b_GRID_D7', 'b_GRID_D9',
-		'b_GRID_E1', 'b_GRID_E2', 'b_GRID_E3', 'b_GRID_E4', 'b_GRID_E5', 'b_GRID_E6', 'b_GRID_E7', 'b_GRID_E9'
+		'b_GRID_E1', 'b_GRID_E2', 'b_GRID_E3', 'b_GRID_E4', 'b_GRID_E5', 'b_GRID_E7', 'b_GRID_E9'
 	),
 	'inuse_MONO': (
 		'b_GRID_F5', 'b_GRID_F6', 'b_GRID_F7', 'b_GRID_F8', 'b_GRID_F9',

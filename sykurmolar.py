@@ -193,10 +193,10 @@ class StartPoint():
 			self.lineInUpdate = pyo.Pattern(self.updateLineIn, time = constants.START_POINT_UPDATE_FREQUENCY_SECONDS
 		)
 			self.lineInUpdateTrigger = pyo.TrigFunc(sampleCounterInitTrigger, self.lineInUpdate.play)
-		elif typeOfStartPoint == 'HFF':
-			self.HFFUpdate = pyo.Pattern(self.updateHFF, time = constants.START_POINT_UPDATE_FREQUENCY_SECONDS
-		)
-			self.BankingCollapse = pyo.TrigFunc(sampleCounterInitTrigger, self.HFFUpdate.play)
+		#elif typeOfStartPoint == 'HFF':
+		#	self.HFFUpdate = pyo.Pattern(self.updateHFF, time = constants.START_POINT_UPDATE_FREQUENCY_SECONDS
+		#)
+		#	self.BankingCollapse = pyo.TrigFunc(sampleCounterInitTrigger, self.HFFUpdate.play)
 
 	def updateLineIn(self):
 		now = int(sampleCounter.get())
@@ -204,15 +204,16 @@ class StartPoint():
 		lineMax = max(now - constants.LINE_IN_LOOKBACK_RANGE_MIN_SAMPLES, 1)
 		self.startPositionSamples = random.randint(lineMin, lineMax)
 
-	def updateHFF(self):
-		self.startPositionSamples = random.randint(0, int(sampleCounter.get()))
+	#def updateHFF(self):
+	#	self.startPositionSamples = random.randint(0, int(sampleCounter.get()))
 
 	def updateToNow(self):
 		# gets called by buttons to define now as new startpoint
 		self.startPositionSamples = int(sampleCounter.get())
 		
-# create StartPoints, 0 = lineIn, 1 = helvítis fokking fokk, remainder = manual
-allStartPoints = [StartPoint('lineIn'), StartPoint('HFF')]
+# create StartPoints, 0 = lineIn, remainder = manual
+# prior to removing HFF, this was index 1. removed because it was predictable and resource-heavy.
+allStartPoints = [StartPoint('lineIn')]
 for i in range(constants.NUMBER_OF_START_POINTS):
 	allStartPoints.append(StartPoint(None))
 allStartPoints = tuple(allStartPoints)
