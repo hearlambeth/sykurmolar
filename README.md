@@ -43,7 +43,10 @@ bash jack_start.sh
 - improve text output generally (done triggers, displayFull, more?)
 - print more/fix labels
 - helvítis fokking fokk cannot work right now. commented out.
-- add limiter so a direct recording can be useful
+- add limiter so a direct recording can be more useful. either:
+	- sum all moli mixers and direct out in sykurmolar.py
+	- separately record each moli to individual wavs. intensive.
+	- nevermind, just use cassettes
 - make trigger type that loops randomized complex rhythms
 - make trigger type that loops tapped rhythms
 - trigger type "combine" - abandon?

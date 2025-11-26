@@ -306,7 +306,7 @@ class Sykurmoli():
 		self.out.mul = self.volPortamento
 
 	def changeVolume(self, new):
-		# overall volume for fader control. should behave independently from bita volumes.
+		# overall volume for fader control
 		self.volPortamento.value = new
 	
 	def stop(self):
@@ -347,7 +347,6 @@ class Sykurmoli():
 		if index < len(self.triggers):
 			self.respondsToTriggerIndex = index
 			self.triggerResponder.setInput(self.triggers[index].outputTrigger, fadetime = 0)
-			#self.display('trigger', index)
 			self.display('t_' + self.triggers[index].name)
 
 	def changeTriggerSourceChoice(self, rangeTuple):
@@ -357,6 +356,7 @@ class Sykurmoli():
 	def nya(self):
 		# play the trigger then set source to NoTrigger
 		self.nyaTrigger.play()
+		self.display('nya!')
 		self.changeTriggerSource(0)
 
 	# FREEZE

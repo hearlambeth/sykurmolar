@@ -9,6 +9,8 @@ from time import strftime
 # audio setup
 #	jack
 #	cli version of this: /usr/bin/jackd -v -R -dalsa -dhw:CODEC -r48000 -p512 -n8
+JACK_DRIVER = "alsa"
+JACK_DEVICE = "hw:codec"
 PERIODS_PER_BUFFER = 8
 BUFFER_SIZE = 512
 SAMPLE_RATE = 48000
