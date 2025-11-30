@@ -1,8 +1,7 @@
 '''
-on computer:
-	- must run prestart then jack_start manually before script. þetta reddast
-on raspberry pi:
-	- add prestart (done as sudo) and jack_start (done as normal user) to processes when booting
+Main script for sykurmolar.
+
+on laptop, must run prestart then jack_start manually before script
 
 IMPORTS
 '''
@@ -14,28 +13,10 @@ import sys, os, shutil, random
 from time import strftime
 
 '''
-SETUP
-'''
-
-'''
-if len(sys.argv) < 2:
-	raise RuntimeError("Must run with argument 0 or 1 (shell & jack externally VS attempted in-script)")
-
-if str(sys.argv[1]) == '1':
-	
-	# run shell script
-	audioEnvironmentSetup = subprocess.call(['sh', './prestart.sh'])
-	if audioEnvironmentSetup != 0:
-		raise RuntimeError("Must run this in sudo otherwise audio environment fails")
-	# start jack'''
-
-'''
 PYO SERVER SETUP
 '''
 
 pyoServer = pyo.Server(nchnls=2, ichnls=constants.INPUT_CHANNELS, audio='jack')
-#pyoServer.setInOutDevice(3)
-#pyo.pa_list_devices()
 pyoServer.boot()
 pyoServer.start()
 

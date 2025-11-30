@@ -1,6 +1,7 @@
 import constants
 import jack_server
 # emulating cli: "/usr/bin/jackd -R -dalsa -dhw:CODEC -r48000 -p512 -n8"
+# for potential use in laptop version. not used in raspberry pi version using PatchboxOS, where jack is autostarted on boot.
 
 jackServer = jack_server.Server(
 		realtime=True,

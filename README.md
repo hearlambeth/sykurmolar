@@ -6,12 +6,12 @@ this is very much for my own purposes. it contains bits of icelandic. it is here
 
 in use in some form live since 2024. built on lessons from previous loopers using pyo and computer keyboard controllers, 2017-2021.
 
-# requirements
+# requirements, simplified
 
 - linux
 - audio interface
 - apc40 mkii
-- python libraries: pyo64, rtmidi, a few mathematical ones
+- python libraries: pyo, rtmidi, numpy, jack_server (unused)
 
 # usage (laptop)
 
@@ -29,16 +29,40 @@ bash jack_start.sh
 
 4. in a separate terminal, run sykurmolar.py interactively
 ```
-/usr/bin/python3.10 -i "sykurmolar.py"
+python -i "sykurmolar.py"
 ```
+
+# installation on Raspberry Pi 5 running PatchboxOS
+
+this describes, messily, the steps to a successful installation
+
+1. make new Patchbox, set jack config, set realtime kernel
+2. use pyenv to get python3.10.14, which is the version used in the original sykurmolar creation. it probably also works on 3.11.
+	- download, following: https://github.com/pyenv/pyenv?tab=readme-ov-file#a-getting-pyenv (at step D follow instructions for apt https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
+	- install 3.10.14 with `pyenv install 3.10.14`
+	- set this to default python with `pyenv global 3.10.14`
+3. get requirements to build pyo with sources: `sudo apt-get install libjack-jackd2-dev libsndfile1 libsndfile1-dev`
+(probably old problems: i previously tried libsndfile, which was a more complicated build: https://github.com/libsndfile/libsndfile; i also previously used libjack-dev, which gets uninstalled by blokas-jack)
+4. build pyo from sources, with flags to use jack, double precision (pyo64) and minimal (no portmidi etc.):
+```
+python -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double" --config-setting="--build-option=--minimal"
+```
+and install wheel, e.g. `pip install dist/pyo-1.0.6-cp310-cp310-linux_aarch64.whl` (swap for resultant wheel)
+(unclear problem: this resulted in: "ModuleNotFoundError: No module named 'pyo._pyo'" from "/home/patch/pyo/pyo/lib/_core.py", line 48 line: from .._pyo import *; i did pip install -i https://test.pypi.org/simple/ pyo==1.0.5, and then it worked, but the version shows as 1.0.6. not sure what happened here. may have been fixed by a reboot.)
+5. sudo apt install blokas-jack (if this was uninstalled earlier by pyo dependencies), and reboot
+6. install sykurmolar here using `git clone ...`
+7. install other dependencies using `pip install -r requirements.txt`
+8. `mkdir recordings` in sykurmolar directory, to have somewhere to put recordings
+
+INCOMPLETE! next:
+- get a Pisound soundcard, a screen, and a shield
+- make Pisound button launch sykurmolar interactively. ideally, booting the Pi will set up jack but not launch the script. pressing the button will run `python -i sykurmolar.py`. förum button will terminate it. pressing the button again will run this again. Pi's power off button will turn it off. this way i can easily update over ssh.
+- test extremes (all sykurmolar, 10 bitar, speedy snail) to evaluate if components of prestart.sh are necessary to include. on usb interface, it did not handle even one 10-bitar sykurmolar on speedy snail very well, but light use was fine.
+- does this Pi have wifi? is it disabled when jack is running?
 
 # to do
 
-- migrate to raspberry pi
-	- get pi soundcard, screen, shield, mount all to midi controller
-	- add flag to specify device used (computer, raspberry pi)
-	- tailor text output to raspberry pi screen space limitations
-	- pi boot routine: shell scripts, then sykurmolar
+- further tailor text output to raspberry pi screen space limitations
 - improve visual feedback of sounds occurring (esp. LEDs)
 - improve text output generally (done triggers, displayFull, more?)
 - print more/fix labels
