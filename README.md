@@ -43,11 +43,7 @@ this describes, messily, the steps to a successful installation and causing it t
 	- set this to default python with `pyenv global 3.10.14`
 3. get requirements to build pyo with sources: `sudo apt-get install libjack-jackd2-dev libsndfile1 libsndfile1-dev`
 (probably old problems: i previously tried libsndfile, which was a more complicated build: https://github.com/libsndfile/libsndfile; i also previously used libjack-dev, which gets uninstalled by blokas-jack)
-4. build pyo from sources, with flags to use jack, double precision (pyo64) and minimal (no portmidi etc.):
-```
-python -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double" --config-setting="--build-option=--minimal"
-```
-and install wheel - however it's named - e.g. `pip install dist/pyo-1.0.6-cp310-cp310-linux_aarch64.whl` *
+4. build pyo from sources, with flags to use jack, double precision (pyo64) and minimal (no portmidi etc.): `python -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double" --config-setting="--build-option=--minimal"` and install wheel - however it's named - e.g. `pip install dist/pyo-1.0.6-cp310-cp310-linux_aarch64.whl`*
 5. sudo apt install blokas-jack (if this was uninstalled earlier by pyo dependencies), and reboot
 6. install sykurmolar here using `git clone ...`
 7. install other dependencies using `pip install -r requirements.txt`
@@ -56,7 +52,7 @@ and install wheel - however it's named - e.g. `pip install dist/pyo-1.0.6-cp310-
 
 patchbox module and systemd both cannot run interactive python scripts in console, so .bashrc was my solution. thanks to zuggamasta & giedrius: https://community.blokas.io/t/creating-a-module-to-install-and-launch-python/5965/
 
-*(unclear problem: this resulted in: "ModuleNotFoundError: No module named 'pyo._pyo'" from "/home/patch/pyo/pyo/lib/_core.py", line 48 line: from .._pyo import *; i did pip install -i https://test.pypi.org/simple/ pyo==1.0.5, and then it worked, but the version shows as 1.0.6. not sure what happened here. may have been fixed by a reboot.)
+*unclear problem: this resulted in: "ModuleNotFoundError: No module named 'pyo._pyo'" from "/home/patch/pyo/pyo/lib/_core.py", line 48 line: from .._pyo import *; i did pip install -i https://test.pypi.org/simple/ pyo==1.0.5, and then it worked, but the version shows as 1.0.6. not sure what happened here. may have been fixed by a reboot.
 
 INCOMPLETE! next:
 - get a Pisound soundcard, a screen (I2C OLED display, eg https://www.pishop.us/product/1-32inch-oled-display-module-128x96-spi-i2c/?searchid=0&search_query=i2c+oled+display), and a shield
