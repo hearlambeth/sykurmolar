@@ -34,7 +34,7 @@ python -i "sykurmolar.py"
 
 # installation on Raspberry Pi 5 running PatchboxOS
 
-this describes, messily, the steps to a successful installation
+this describes, messily, the steps to a successful installation and causing it to start on boot.
 
 1. make new Patchbox, set jack config, set realtime kernel
 2. use pyenv to get python3.10.14, which is the version used in the original sykurmolar creation. it probably also works on 3.11.
@@ -53,10 +53,13 @@ and install wheel, e.g. `pip install dist/pyo-1.0.6-cp310-cp310-linux_aarch64.wh
 6. install sykurmolar here using `git clone ...`
 7. install other dependencies using `pip install -r requirements.txt`
 8. `mkdir recordings` in sykurmolar directory, to have somewhere to put recordings
+9. make the script start whenever the console starts. in the home directory, `nano .bashrc` and append to end the command to run the code: `/home/patch/.pyenv/shims/python3.10 -i ./sykurmolar/sykurmolar.py`
+
+patchbox module and systemd both cannot run interactive python scripts in console, so .bashrc was my solution. thanks to zuggamasta & giedrius: https://community.blokas.io/t/creating-a-module-to-install-and-launch-python/5965/
+
 
 INCOMPLETE! next:
-- get a Pisound soundcard, a screen, and a shield
-- make Pisound button launch sykurmolar interactively. ideally, booting the Pi will set up jack but not launch the script. pressing the button will run `python -i sykurmolar.py`. förum button will terminate it. pressing the button again will run this again. Pi's power off button will turn it off. this way i can easily update over ssh.
+- get a Pisound soundcard, a screen (I2C OLED display, eg https://www.pishop.us/product/1-32inch-oled-display-module-128x96-spi-i2c/?searchid=0&search_query=i2c+oled+display), and a shield
 - test extremes (all sykurmolar, 10 bitar, speedy snail) to evaluate if components of prestart.sh are necessary to include. on usb interface, it did not handle even one 10-bitar sykurmolar on speedy snail very well, but light use was fine.
 - does this Pi have wifi? is it disabled when jack is running?
 

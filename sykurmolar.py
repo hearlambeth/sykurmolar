@@ -1,7 +1,7 @@
 '''
 Main script for sykurmolar.
 
-on laptop, must run prestart then jack_start manually before script
+on laptop, must run prestart.sh then jack_start.sh manually before script
 
 IMPORTS
 '''
@@ -9,8 +9,7 @@ IMPORTS
 import constants, midi, midiToFunction, moli, triggers
 # external imports
 import pyo64 as pyo
-import sys, os, shutil, random
-from time import strftime
+import os, shutil, random
 
 '''
 PYO SERVER SETUP
