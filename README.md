@@ -70,9 +70,13 @@ INCOMPLETE! next:
 	- sum all moli mixers and direct out in sykurmolar.py
 	- separately record each moli to individual wavs. intensive.
 	- nevermind, just use cassettes
-- make trigger type that loops randomized complex rhythms
-- make trigger type that loops tapped rhythms
-- trigger type "combine" - abandon?
+- make trigger type that loops randomized complex rhythms. coded, to implement:
+	- change midiToFunction: reflect new button layout (tap, simple, prime, swung, swungrhythm, reset/new rhythm)
+	- change LEDs that light
+	- remove one set of primes/merge to full list
+	- mid button to change rhythm beats#
+- make trigger type that loops tapped rhythms. this will be in the mid section, and the mid knob can rotate to change what the ammæli knobs are doing.
+- trigger type "combine" - abandon
 - learn how to make use of individual response values for each parameter
 - make a constants file to place all constants
 - fix bug: sometimes some knob LEDs fail to turn off on start

@@ -105,7 +105,6 @@ def lineInMute():
 		# send to LED
 		midiHandler.sendButtonLEDColor('b_TRACK8_4', 'ON')
 
-# NEW
 def lineInChangePan(newValue):
 	lineInPanPortamento.value = newValue
 
@@ -190,6 +189,7 @@ class StartPoint():
 	def updateToNow(self):
 		# gets called by buttons to define now as new startpoint
 		self.startPositionSamples = int(sampleCounter.get())
+		print(self.startPositionSamples)
 		
 # create StartPoints, 0 = lineIn, remainder = manual
 # prior to removing HFF, this was index 1. removed because it was predictable and resource-heavy.

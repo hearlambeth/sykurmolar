@@ -135,7 +135,10 @@ def newFromMiddle(amount, minimum, maximum, minimumLimit, maximumLimit):
 
 
 def iterate(currentIndex, maxIndex):
-	# presumably there's a prebuilt function for faster iterating a long list
+	'''
+	go to next index, or back to 0 if passing it
+	presumably there is a prebuilt function for this somewhere
+	'''
 	currentIndex += 1
 	if currentIndex > maxIndex:
 		currentIndex = 0

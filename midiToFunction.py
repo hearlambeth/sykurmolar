@@ -24,7 +24,7 @@ normal = {
 	'b_GRID_G4': ('changeSelectedSykurmolar', 3),
 	# individual track buttons
 	'b_TRACK8_4': 'lineInMute',
-	# fader - NEW
+	# fader
 	'f_AB': 'lineInChangePan',
 	# top right
 	'b_TR2_PLAY': 'displayFull',
@@ -108,10 +108,10 @@ triggerAmbiguous = {
 }
 
 startPoint = {
-	'b_GRID_F5': 2,
-	'b_GRID_F6': 3,
-	'b_GRID_F7': 4,
-	'b_GRID_F8': 5
+	'b_GRID_F5': 1,
+	'b_GRID_F6': 2,
+	'b_GRID_F7': 3,
+	'b_GRID_F8': 4
 }
 
 sykurmolaSpecific = {
