@@ -78,14 +78,14 @@ LEDBlocks = {
 		'b_GRID_C1', 'b_GRID_C2', 'b_GRID_C3', 'b_GRID_C4', 'b_GRID_C5', 'b_GRID_C6', 'b_GRID_C7', 'b_GRID_C8',
 		'b_GRID_D1', 'b_GRID_D2', 'b_GRID_D3', 'b_GRID_D4', 'b_GRID_D5', 'b_GRID_D6', 'b_GRID_D7', 'b_GRID_D8'),
 	'inuse_RGB': (
-		'b_GRID_A1', 'b_GRID_A3', 'b_GRID_A4', 'b_GRID_A5', 'b_GRID_A9',
-		'b_GRID_B1', 'b_GRID_B2', 'b_GRID_B3', 'b_GRID_B4', 'b_GRID_B5', 'b_GRID_B7', 'b_GRID_B9',
-		'b_GRID_C1', 'b_GRID_C2', 'b_GRID_C3', 'b_GRID_C4', 'b_GRID_C5', 'b_GRID_C7', 'b_GRID_C9',
-		'b_GRID_D1', 'b_GRID_D3', 'b_GRID_D4', 'b_GRID_D5', 'b_GRID_D7', 'b_GRID_D9',
-		'b_GRID_E1', 'b_GRID_E2', 'b_GRID_E3', 'b_GRID_E4', 'b_GRID_E5', 'b_GRID_E7', 'b_GRID_E9'
+		'b_GRID_A1', 'b_GRID_A3', 'b_GRID_A4', 'b_GRID_A5', 'b_GRID_A6', 'b_GRID_A9',
+		'b_GRID_B1', 'b_GRID_B2', 'b_GRID_B3', 'b_GRID_B4', 'b_GRID_B5', 'b_GRID_B6', 'b_GRID_B7', 'b_GRID_B9',
+		'b_GRID_C1', 'b_GRID_C3', 'b_GRID_C4', 'b_GRID_C5', 'b_GRID_C6', 'b_GRID_C7', 'b_GRID_C9',
+		'b_GRID_D1', 'b_GRID_D2', 'b_GRID_D3', 'b_GRID_D4', 'b_GRID_D5', 'b_GRID_D6', 'b_GRID_D7', 'b_GRID_D9',
+		'b_GRID_E1', 'b_GRID_E2', 'b_GRID_E3', 'b_GRID_E4', 'b_GRID_E6', 'b_GRID_E7', 'b_GRID_E9'
 	),
 	'inuse_MONO': (
-		'b_GRID_F5', 'b_GRID_F6', 'b_GRID_F7', 'b_GRID_F8', 'b_GRID_F9',
+		'b_GRID_F1', 'b_GRID_F3', 'b_GRID_F5', 'b_GRID_F6', 'b_GRID_F7', 'b_GRID_F8', 'b_GRID_F9',
 		'b_GRID_G5', 'b_GRID_G6', 'b_GRID_G7', 'b_GRID_G8', 'b_GRID_G9',
 		'b_TRACK1_1', 'b_TRACK1_2', 'b_TRACK1_3', 'b_TRACK1_4', 
 		'b_TRACK2_1', 'b_TRACK2_2', 'b_TRACK2_3', 'b_TRACK2_4', 

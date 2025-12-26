@@ -134,6 +134,10 @@ def newFromMiddle(amount, minimum, maximum, minimumLimit, maximumLimit):
 		return minimum, maximum
 
 
+'''
+OTHER
+'''
+
 def iterate(currentIndex, maxIndex):
 	'''
 	go to next index, or back to 0 if passing it
@@ -181,3 +185,12 @@ def sign(number):
 		return '-'
 	else:
 		return '+'
+	
+def pointsToDifference(pointsList):
+	'''
+	converts an increasing list of values to a difference between values
+	e.g. [0, 300, 500] -> [300, 200]
+	get the length of the list i want, then calc each difference sequentially
+	'''
+	targetLength = len(pointsList) - 1
+	return [int(pointsList[i+1] - pointsList[i]) for i in range(targetLength)]

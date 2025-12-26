@@ -82,7 +82,6 @@ elif constants.INPUT_CHANNELS == 2:
 lineInVolPortamento = pyo.SigTo(0, time=constants.PORTAMENTO_TRANSITION_SECONDS, init=0)
 lineInAudioOut.mul = lineInVolPortamento
 
-# old version: lineInAudioOutPan = pyo.SPan(lineInAudioOut).out() # CHANGE THIS TO PAN, SET A PAN TO BE A SIGTO, FN TO CHANGE THE SIGTO
 lineInPanPortamento = pyo.SigTo(0.5, constants.PORTAMENTO_TRANSITION_SECONDS, init = 0.5)
 lineInAudioOutPan = pyo.Pan(lineInAudioOut, pan = lineInPanPortamento).out()
 
@@ -115,36 +114,33 @@ lineInAudioToAudioTable = pyo.TrigTableRec(lineInAudio, sampleCounterInitTrigger
 
 '''
 TRIGGERS - CREATION
+
+allTriggers length = 27
+each trigger in allTriggers has an outputTrigger that can be listened to
+
+warning - if i change the position of triggers.TappedRhythm, i need to change the index referenced in executeFunctionTappedRhythm
+if i change any positions here, i need to change their index in midiToFunction
 '''
 
-# allTriggers length = 33
-# each trigger in allTriggers has an outputTrigger that can be listened to
-# each trigger has as name
 ammæli = (triggers.Ammæli(3, sampleCounter, name='a0'), triggers.Ammæli(8, sampleCounter, name='a1'))
 
 allTriggers = (
 	# singles (indices 0-7)
 	triggers.No(),
-	triggers.Manual(),
+	triggers.TappedRhythm(sampleCounter),
 	ammæli[0].t_SimpleLoop, # 2
 	ammæli[0].t_Swung,
-	ammæli[0].t_Combine,
+	ammæli[0].t_SwungRhythm,
 	ammæli[1].t_SimpleLoop, # 5
 	ammæli[1].t_Swung,
-	ammæli[1].t_Combine,
-	# groupings of 5
-	# indices 8-12
+	ammæli[1].t_SwungRhythm,
+	# snails - 8-12
 	triggers.Random(20, name='snigill4'), triggers.Random(7, name='snigill3'), triggers.Random(2, name='snigill2'), triggers.Random(0.4, name='snigill1'), triggers.Random(0.1, name='snigill0'),
-	# 13-17
-	ammæli[0].t_PrimesLong[0], ammæli[0].t_PrimesLong[1], ammæli[0].t_PrimesLong[2], ammæli[0].t_PrimesLong[3], ammæli[0].t_PrimesLong[4],
-	# 18-22
-	ammæli[0].t_PrimesShort[0], ammæli[0].t_PrimesShort[1], ammæli[0].t_PrimesShort[2], ammæli[0].t_PrimesShort[3], ammæli[0].t_PrimesShort[4],
-	# 23-27
-	ammæli[1].t_PrimesLong[0], ammæli[1].t_PrimesLong[1], ammæli[1].t_PrimesLong[2], ammæli[1].t_PrimesLong[3], ammæli[1].t_PrimesLong[4],
-	# 28-32
-	ammæli[1].t_PrimesShort[0], ammæli[1].t_PrimesShort[1], ammæli[1].t_PrimesShort[2], ammæli[1].t_PrimesShort[3], ammæli[1].t_PrimesShort[4]
+	# primes - 13-19
+	ammæli[0].t_Primes[0], ammæli[0].t_Primes[1], ammæli[0].t_Primes[2], ammæli[0].t_Primes[3], ammæli[0].t_Primes[4], ammæli[0].t_Primes[5], ammæli[0].t_Primes[6],
+	# primes - 20-26
+	ammæli[1].t_Primes[0], ammæli[1].t_Primes[1], ammæli[1].t_Primes[2], ammæli[1].t_Primes[3], ammæli[1].t_Primes[4], ammæli[1].t_Primes[5], ammæli[1].t_Primes[6]
 )
-
 
 '''
 LINEIN RANGE FOR STARTPOINTS
@@ -236,10 +232,10 @@ def moliKnobOptions_CHANGE(newIndex):
 	midiHandler.setLEDBlockArray('moliKnobOptions', LEDsArray, ('OFF', 'PINK_C'))
 
 triggerKnobOptions_INDEX = None
-triggerKnobOptions_NAMES = ('simple', 'swung', 'combine')
+triggerKnobOptions_NAMES = ('simple', 'swung', 'swythm')
 
 def triggerKnobOptions_CHANGE(newIndex):
-	# receives 0-2 for SimpleLoop, Swung, Combine
+	# receives 0-2 for SimpleLoop, Swung, SwungRhythm
 	# these stick, and by default are at 0
 	global triggerKnobOptions_INDEX
 	triggerKnobOptions_INDEX = newIndex
@@ -272,14 +268,15 @@ def jumpToLimit_SHIFTUP():
 MIDI INTERACTION
 
 executeFromMidiIn is the command executed when midi signal is received
-where to store the LED function calls?
-	if a function happens, give an LED block a value to work with
+
+uses getattr to directly invoke functions from their names as strings
+due to the locations of function names, and data required to pass to them, these are in different functions
+
+newValue is received from the MIDI controller for knobs and faders
+where this is used, it gets passed directly to the execute_ function
 '''
 
-nextLEDFunctionName = None
-
 def executeFromMidiIn(data1, data2):
-	global nextLEDFunctionName
 	# data1 received is ([list,of,midivalues], deltatime); data2 received = None
 	midiValues = data1[0]
 	# pass clarifyMidiIn the data and see if we get a response or an error
@@ -305,16 +302,20 @@ def executeFromMidiIn(data1, data2):
 	# these function names are getting a bit out of hand
 	elif peripheralName in midiToFunction.sykurmolaSpecificFader:
 		executeFunctionToSpecificSykurmoliFader(midiToFunction.sykurmolaSpecificFader[peripheralName], newValue)
-	# trigger - execute the function to the ammæli
-	elif peripheralName in midiToFunction.trigger:
-		executeTriggerFunction(midiToFunction.trigger[peripheralName])
-	# trigger ambiguous - execute the disambiguated function to the ammæli
-	elif peripheralName in midiToFunction.triggerAmbiguous:
-		disambiguateTriggerFunction(midiToFunction.triggerAmbiguous[peripheralName], newValue)
+	# ammæli trigger - execute the function to the ammæli
+	elif peripheralName in midiToFunction.triggerAmmæli:
+		executeFunctionAmmæliTrigger(midiToFunction.triggerAmmæli[peripheralName])
+	# ammæli trigger ambiguous knobs - execute the disambiguated function to the ammæli
+	elif peripheralName in midiToFunction.triggerAmmæliAmbiguous:
+		disambiguateAmmæliTriggerFunction(midiToFunction.triggerAmmæliAmbiguous[peripheralName], newValue)
+	# tapped rhythm trigger - execute the function to this specific trigger
+	elif peripheralName in midiToFunction.triggerTappedRhythm:
+		executeFunctionTappedRhythm(midiToFunction.triggerTappedRhythm[peripheralName], newValue)
 	# start point
 	elif peripheralName in midiToFunction.startPoint:
 		executeFunctionUpdateStartPoint(midiToFunction.startPoint[peripheralName])
 	
+
 def executeFunctionNormal(functionData, newValue):
 	# if functionData is a string, execute this with or without newValue
 	if type(functionData) is str:
@@ -335,7 +336,7 @@ def executeFunctionToSelectedSykurmolar(functionData, newValue):
 			for moli in selectedSykurmolar:
 				getattr(allSykurmolar[moli], str(functionData))()
 		else:
-			# pass newValue. NEW: jumpToLimit_TOGGLE if statement
+			# pass newValue, multiplied to max for jumpToLimit_TOGGLE
 			if jumpToLimit_TOGGLE:
 				newValue *= 100
 			for moli in selectedSykurmolar:
@@ -359,10 +360,18 @@ def executeFunctionToSpecificSykurmoliFader(functionsTuple, newValue):
 def executeFunctionUpdateStartPoint(startPointNumber):
 	getattr(allStartPoints[startPointNumber], str('updateToNow'))()
 
-def executeTriggerFunction(functionsTuple):
+def executeFunctionAmmæliTrigger(functionsTuple):
 	ammæliNumber, functionName = functionsTuple
 	getattr(ammæli[ammæliNumber], str(functionName))()
 
+def executeFunctionTappedRhythm(functionName, newValue):
+	# do not pass newValue if its value is explicitly None
+	# (for buttons vs knobs)
+	if newValue == None:
+		getattr(allTriggers[1], str(functionName))()
+	else:
+		getattr(allTriggers[1], str(functionName))(newValue)
+	
 def disambiguateSykurmolaAmbiguousFunction(functionsTuple, newValue):
 	'''
 	this receives a tuple from the dictionary in the following format:
@@ -379,7 +388,7 @@ def disambiguateSykurmolaAmbiguousFunction(functionsTuple, newValue):
 		if mmbc[moliKnobOptions_INDEX]:
 			executeFunctionToSelectedSykurmolar(mmbc[moliKnobOptions_INDEX], newValue)
 		
-def disambiguateTriggerFunction(functionsData, newValue):
+def disambiguateAmmæliTriggerFunction(functionsData, newValue):
 	'''
 	this receives a tuple of the knob options to execute dependent on triggerKnobOptions_INDEX
 	triggerKnobOptions will be None if the selection button is not held
@@ -441,6 +450,7 @@ START PROGRAM
 '''
 midiHandler = midi.MidiHandler(executeFromMidiIn)
 midiHandler.startLEDs()
+midiHandler.startLEDs() # will this fix the bug where some knobs stay lit?
 changeSelectedSykurmolar(0)
 moliKnobOptions_CHANGE(4)
 triggerKnobOptions_CHANGE(0)

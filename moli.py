@@ -333,7 +333,6 @@ class Sykurmoli():
 		self.forceRespondVolumeOnce = 0
 
 	# TRIGGERS
-	# the nyaTrigger exists here because i want to be able to call
 
 	def createTriggerObjects(self):
 		self.triggerResponder = pyo.TrigFunc(self.triggers[self.respondsToTriggerIndex].outputTrigger, self.respondToTrigger)

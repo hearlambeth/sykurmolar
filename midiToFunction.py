@@ -10,12 +10,12 @@ normal = {
 	'b_GRID_B2': ('triggerKnobOptions_CHANGE', 0),
 	'b_GRID_B8': ('moliKnobOptions_CHANGE', 3),
 	'b_GRID_B9': ('moliKnobOptions_CHANGE', 1),
-	'b_GRID_C2': ('triggerKnobOptions_CHANGE', 1),
 	'b_GRID_C9': ('moliKnobOptions_CHANGE', 4),
+	'b_GRID_D2': ('triggerKnobOptions_CHANGE', 1),
 	'b_GRID_D9': ('moliKnobOptions_CHANGE', 5),
+	'b_GRID_E2': ('triggerKnobOptions_CHANGE', 2),
 	'b_GRID_E9': 'forceRespondOnce_SHIFTDOWN',
 	'b_GRID_E9-up': 'forceRespondOnce_SHIFTUP',
-	'b_GRID_F2': ('triggerKnobOptions_CHANGE', 2),
 	'b_GRID_F9': 'jumpToLimit_SHIFTDOWN',
 	'b_GRID_F9-up': 'jumpToLimit_SHIFTUP',
 	'b_GRID_G1': ('changeSelectedSykurmolar', 0),
@@ -36,27 +36,27 @@ sykurmola = {
 	# a single string or a 2-tuple
 	# if a tuple, the first is the function, second is the data
 	'b_GRID_A4': ('changeTriggerSource', 12),
-	'b_GRID_A5': ('changeStartPointOffsetMax', 50),
+	'b_GRID_A5': ('changeTriggerSource', 1),
+	'b_GRID_A6': ('changeStartPointOffsetMax', 50),
 	'b_GRID_B1': ('changeTriggerSource', 2),
 	'b_GRID_B3': ('changeTriggerSource', 5),
 	'b_GRID_B4': ('changeTriggerSource', 11),
-	'b_GRID_B5': ('changeStartPointOffsetMax', 200),
+	'b_GRID_B6': ('changeStartPointOffsetMax', 200),
 	'b_GRID_B7': 'shuffleFreezeVariables',
-	'b_GRID_C1': ('changeTriggerSource', 3),
-	'b_GRID_C3': ('changeTriggerSource', 6),
+	'b_GRID_C1': ('changeTriggerSourceChoice', (13,19)),
+	'b_GRID_C3': ('changeTriggerSourceChoice', (20,26)),
 	'b_GRID_C4': ('changeTriggerSource', 10),
-	'b_GRID_C5': ('changeStartPointOffsetMax', 1000),
+	'b_GRID_C6': ('changeStartPointOffsetMax', 1000),
 	'b_GRID_C7': 'reverseFreezeVariables',
-	'b_GRID_D1': ('changeTriggerSourceChoice', (13,17)),
-	'b_GRID_D3': ('changeTriggerSourceChoice', (23,27)),
+	'b_GRID_D1': ('changeTriggerSource', 3),
+	'b_GRID_D3': ('changeTriggerSource', 6),
 	'b_GRID_D4': ('changeTriggerSource', 9),
-	'b_GRID_D5': ('changeStartPointOffsetMax', 5000),
+	'b_GRID_D6': ('changeStartPointOffsetMax', 5000),
 	'b_GRID_D7': 'freezeOn',
-	'b_GRID_E1': ('changeTriggerSourceChoice', (18,22)),
-	'b_GRID_E2': ('changeTriggerSource', 0),
-	'b_GRID_E3': ('changeTriggerSourceChoice', (28,32)),
+	'b_GRID_E1': ('changeTriggerSource', 4),
+	'b_GRID_E3': ('changeTriggerSource', 7),
 	'b_GRID_E4': ('changeTriggerSource', 8),
-	'b_GRID_E5': ('changeStartPointOffsetMax', 24000),
+	'b_GRID_E6': ('changeStartPointOffsetMax', 24000),
 	'b_GRID_E7': 'freezeOff',
 	'b_GRID_G5': ('changeStartPointIndex', 1),
 	'b_GRID_G6': ('changeStartPointIndex', 2),
@@ -95,16 +95,25 @@ sykurmolaAmbiguous = {
 	'k_RIGHT_8': (('changeVolumeMax', 'changeVolumeMin', 'changeVolumeSpread', 'changeVolumeMid', 'changeVolumeBias', 'changeVolumeResponse'), 'doForceRespondVolumeOnce')
 }
 
-trigger = {
+triggerAmmæli = {
 	# a tuple in the format: (ammæliNumber, function)
 	'b_GRID_A1': (0, 'tapTempo'),
-	'b_GRID_A3': (1, 'tapTempo')
+	'b_GRID_A3': (1, 'tapTempo'),
+	'b_GRID_F1': (0, 'newSwungRhythm'),
+	'b_GRID_F3': (1, 'newSwungRhythm')
 }
 
-triggerAmbiguous = {
+triggerAmmæliAmbiguous = {
 	# a tuple in the format: (ammæliNumber, functionsTuple)
-	'k_TOP_1': (0, ('incrementDuration', 'incrementSwing', 'incrementCombineLength')),
-	'k_TOP_3': (1, ('incrementDuration', 'incrementSwing', 'incrementCombineLength'))
+	'k_TOP_1': (0, ('incrementDuration', 'incrementSwing', 'incrementSwungRhythmBeats')),
+	'k_TOP_3': (1, ('incrementDuration', 'incrementSwing', 'incrementSwungRhythmBeats'))
+}
+
+triggerTappedRhythm = {
+	'b_GRID_B5': 'tap',
+	'b_GRID_C5': 'tapAndGo',
+	'b_GRID_D5': 'nullNewRhythm',
+	'k_TOP_5': 'incrementDuration'
 }
 
 startPoint = {
