@@ -6,6 +6,17 @@ this is very much for my own purposes. it contains bits of icelandic. it is here
 
 in use in some form live since 2024. built on lessons from previous loopers using pyo and computer keyboard controllers, 2017-2021.
 
+# broadly ...
+
+- the program constantly records my live playing to an audiostream, which caps at 45 minutes.
+- sections of the audiostream can be played back, either at defineable points (like sampling) or a constantly-moving time just behind the live playing.
+- the audio is played back using sets (sykurmolar) of playback devices (bitar, up to 10 playing at any time per set). there is control - randomized within configurable limitations - over whether they loop by themselves, their direction, their pitch/speed, their volume, etc. pitch/speed includes the ability to make stacked 4ths, 5ths etc, and to offset by a small amount to create a chorus effect.
+- the playback happens using triggers, some of them rhythmic and some very random. these include tappable rhythms, simple and swung looped beats, generated rhythms, prime subdivisions, and random clouds of varying density.
+- at any time, sykurmolar can change their triggers, including to stop receiving triggers (so audio can "run away" by itself). sykurmolar can be set to ignore triggers a certain percentage of the time, or certain parameters can be set to ignore changes.
+- parameters can change freely (always going to a new value every trigger) or can loop through a certain length of values (e.g. always choosing the next of 3 values, then looping back).
+- there are faders for the sum volume of sykurmolar.
+- the output may be recorded to disk any number of times during the session.
+
 # requirements, simplified
 
 - linux
