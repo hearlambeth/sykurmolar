@@ -59,19 +59,24 @@ INCOMPLETE! next:
 - test extremes (all sykurmolar, 10 bitar, speedy snail) to evaluate if components of prestart.sh are necessary to include. on usb interface, it did not handle even one 10-bitar sykurmolar on speedy snail very well, but light use was fine.
 - does this Pi have wifi? is it disabled when jack is running?
 
+# label printing
+
+on libreoffice, zoom to 131% to see exact paper size. print with OCR A font size 17. this did not match the old labels. :(
+
 # to do
 
 - further tailor text output to raspberry pi screen space limitations
 - improve visual feedback of sounds occurring (esp. LEDs)
-- improve text output generally (done triggers, displayFull, more?)
-- print more/fix labels
-- helvítis fokking fokk cannot work right now. commented out.
+- improve text output generally - add more trigger info to displayFull
+- helvítis fokking fokk cannot work right now. commented out. way to make it work would be to make a dynamic list of past absolute sample values.
 - add limiter so a direct recording can be more useful. either:
 	- sum all moli mixers and direct out in sykurmolar.py
 	- separately record each moli to individual wavs. intensive.
 	- nevermind, just use cassettes
-- swing added to tapped rhythm?
+- add swing to tapped rhythm? too much?
 - learn how to make use of individual response values for each parameter
 - fix bug: sometimes some knob LEDs fail to turn off on start. trying: do it again.
-- how to release cursor after program end?
+- fix bug: endar still click. did i mess up a fadeout/fadein time?
+- fix bug: forceRespondOnce_TOGGLE doesn't seem to do anything. did i remove this feature? did i not implement it properly?
+- how to release cursor after program end? - fix added
 - (long term) preset save, start. save all sykurmolar variables to a json, loaded like newAll.

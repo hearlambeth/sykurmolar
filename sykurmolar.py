@@ -185,7 +185,6 @@ class StartPoint():
 	def updateToNow(self):
 		# gets called by buttons to define now as new startpoint
 		self.startPositionSamples = int(sampleCounter.get())
-		print(self.startPositionSamples)
 		
 # create StartPoints, 0 = lineIn, remainder = manual
 # prior to removing HFF, this was index 1. removed because it was predictable and resource-heavy.
@@ -246,12 +245,10 @@ forceRespondOnce_TOGGLE = False
 def forceRespondOnce_SHIFTDOWN():
 	global forceRespondOnce_TOGGLE
 	forceRespondOnce_TOGGLE = True
-	print('force respond: ', forceRespondOnce_TOGGLE)
 
 def forceRespondOnce_SHIFTUP():
 	global forceRespondOnce_TOGGLE
 	forceRespondOnce_TOGGLE = False
-	print('force respond: ', forceRespondOnce_TOGGLE)
 
 jumpToLimit_TOGGLE = False
 
@@ -419,7 +416,6 @@ def displayFull():
 '''
 CLEAN UP WHEN WE END THE PROGRAM
 '''
-programEnd = False
 
 def endProgram():
 	# mute lineIn
@@ -435,9 +431,9 @@ def endProgram():
 	pyoServer.shutdown()
 	# end midi controller
 	midiHandler.end()
-	# end program loop
-	global programEnd
-	programEnd = True
+	# show cursor again. unsure why it disappears
+	# from https://stackoverflow.com/questions/5174810/how-to-turn-off-blinking-cursor-in-command-window/10455937#10455937
+	print("\033[?25h")
 	# end program
 	os._exit(0)
 

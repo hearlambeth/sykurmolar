@@ -75,8 +75,8 @@ sykurmola = {
 	'b_BOTTOMRIGHT_8': ('changePitchMacroMultiplier', 12),
 	'b_SHIFT': ('changePitchMacroMultiplier', 19),
 	'b_BANK': ('changePitchMacroMultiplier', 14),
-	'k_TOP_6': 'changeGlobalResponse',
 	'k_TOP_7': 'changeFreezeLength',
+	'k_TOP_8': 'changeGlobalResponse',
 	'k_CUE_LEVEL': 'changeLineInInterruptBias',
 	'k_TEMPO': 'changeActiveBitar'
 }
