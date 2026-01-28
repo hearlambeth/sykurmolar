@@ -7,13 +7,10 @@ normal = {
 	# if a tuple, the first is the function, second is the data
 	'b_GRID_A8': ('moliKnobOptions_CHANGE', 2),
 	'b_GRID_A9': ('moliKnobOptions_CHANGE', 0),
-	'b_GRID_B2': ('triggerKnobOptions_CHANGE', 0),
 	'b_GRID_B8': ('moliKnobOptions_CHANGE', 3),
 	'b_GRID_B9': ('moliKnobOptions_CHANGE', 1),
 	'b_GRID_C9': ('moliKnobOptions_CHANGE', 4),
-	'b_GRID_D2': ('triggerKnobOptions_CHANGE', 1),
 	'b_GRID_D9': ('moliKnobOptions_CHANGE', 5),
-	'b_GRID_E2': ('triggerKnobOptions_CHANGE', 2),
 	'b_GRID_E9': 'forceRespondOnce_SHIFTDOWN',
 	'b_GRID_E9-up': 'forceRespondOnce_SHIFTUP',
 	'b_GRID_F9': 'jumpToLimit_SHIFTDOWN',
@@ -24,6 +21,8 @@ normal = {
 	'b_GRID_G4': ('changeSelectedSykurmolar', 3),
 	# individual track buttons
 	'b_TRACK8_4': 'lineInMute',
+	# trigger knob
+	'k_TOP_2': 'triggerKnobOptions_INCREMENT',
 	# fader
 	'f_AB': 'lineInChangePan',
 	# top right
@@ -39,6 +38,7 @@ sykurmola = {
 	'b_GRID_A5': ('changeTriggerSource', 1),
 	'b_GRID_A6': ('changeStartPointOffsetMax', 50),
 	'b_GRID_B1': ('changeTriggerSource', 2),
+	'b_GRID_B2': ('changeTriggerSource', 27),
 	'b_GRID_B3': ('changeTriggerSource', 5),
 	'b_GRID_B4': ('changeTriggerSource', 11),
 	'b_GRID_B6': ('changeStartPointOffsetMax', 200),
@@ -49,11 +49,13 @@ sykurmola = {
 	'b_GRID_C6': ('changeStartPointOffsetMax', 1000),
 	'b_GRID_C7': 'reverseFreezeVariables',
 	'b_GRID_D1': ('changeTriggerSource', 3),
+	'b_GRID_D2': ('changeTriggerSource', 28),
 	'b_GRID_D3': ('changeTriggerSource', 6),
 	'b_GRID_D4': ('changeTriggerSource', 9),
 	'b_GRID_D6': ('changeStartPointOffsetMax', 5000),
 	'b_GRID_D7': 'freezeOn',
 	'b_GRID_E1': ('changeTriggerSource', 4),
+	'b_GRID_E2': ('changeTriggerSource', 29),
 	'b_GRID_E3': ('changeTriggerSource', 7),
 	'b_GRID_E4': ('changeTriggerSource', 8),
 	'b_GRID_E6': ('changeStartPointOffsetMax', 24000),

@@ -957,7 +957,6 @@ class Sykurmoli():
 
 		# WORK ON RESPONSIVE BITAR
 		'''
-		fuller explanation of these:
 		for active ones, if responding:
 			if this biti is responsive from responseList at response index OR forced to respond:
 				for the biti's specific endar, change from list at index

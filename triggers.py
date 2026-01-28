@@ -176,6 +176,20 @@ class Random():
 		self.outputTrigger = pyo.Cloud(density = density).play()
 		self.name = name
 
+class Combination():
+	'''
+	combination of two (or more) input triggers, output as a single trigger
+
+	attempt: mixes the inputs (which is a list) into a single stream
+	as this is hopefully identical to the streams (a trig is 0s with a 1 in), outputTrigger shouldn't need changing
+	'''
+
+	def __init__(self, inputs, name='combo'):
+		#inputs = [inputs[i-1].outputTrigger for i in range(len(inputs))] # grab triggers
+		inputs = [x.outputTrigger for x in inputs] # grab triggers
+		self.outputTrigger = pyo.Mix(inputs)
+		self.name = name
+
 class TappedRhythm():
 	'''
 	records and loops a tapped rhythm

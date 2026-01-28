@@ -37,7 +37,7 @@ LEDColors = {
 }
 
 LEDKnobModes = {
-	# see p26 of APC docs. currently no need for these knob LEDs.
+	# see p26 of APC docs pdf. currently no need for these knob LEDs.
 	'OFF': 0
 }
 
@@ -223,7 +223,6 @@ def clarifyMidiIn(data1):
 
 '''
 buttons, knobs, faders - what I am calling peripherals
-
 '''
 
 class Button():

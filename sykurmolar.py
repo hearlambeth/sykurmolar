@@ -6,7 +6,7 @@ on laptop, must run prestart.sh then jack_start.sh manually before script
 IMPORTS
 '''
 # local imports
-import constants, midi, midiToFunction, moli, triggers
+import constants, midi, midiToFunction, moli, triggers, mafs
 # external imports
 import pyo64 as pyo
 import os, shutil, random
@@ -15,7 +15,7 @@ import os, shutil, random
 PYO SERVER SETUP
 '''
 
-pyoServer = pyo.Server(nchnls=2, ichnls=constants.INPUT_CHANNELS, audio='jack')
+pyoServer = pyo.Server(nchnls=constants.OUTPUT_CHANNELS, ichnls=constants.INPUT_CHANNELS, audio='jack')
 pyoServer.boot()
 pyoServer.start()
 
@@ -115,7 +115,7 @@ lineInAudioToAudioTable = pyo.TrigTableRec(lineInAudio, sampleCounterInitTrigger
 '''
 TRIGGERS - CREATION
 
-allTriggers length = 27
+allTriggers length = 30
 each trigger in allTriggers has an outputTrigger that can be listened to
 
 warning - if i change the position of triggers.TappedRhythm, i need to change the index referenced in executeFunctionTappedRhythm
@@ -139,7 +139,11 @@ allTriggers = (
 	# primes - 13-19
 	ammæli[0].t_Primes[0], ammæli[0].t_Primes[1], ammæli[0].t_Primes[2], ammæli[0].t_Primes[3], ammæli[0].t_Primes[4], ammæli[0].t_Primes[5], ammæli[0].t_Primes[6],
 	# primes - 20-26
-	ammæli[1].t_Primes[0], ammæli[1].t_Primes[1], ammæli[1].t_Primes[2], ammæli[1].t_Primes[3], ammæli[1].t_Primes[4], ammæli[1].t_Primes[5], ammæli[1].t_Primes[6]
+	ammæli[1].t_Primes[0], ammæli[1].t_Primes[1], ammæli[1].t_Primes[2], ammæli[1].t_Primes[3], ammæli[1].t_Primes[4], ammæli[1].t_Primes[5], ammæli[1].t_Primes[6],
+	# combinations - 27-29
+	triggers.Combination([ammæli[0].t_SimpleLoop, ammæli[1].t_SimpleLoop], name='simples'),
+	triggers.Combination([ammæli[0].t_Swung, ammæli[1].t_Swung], name='swungs'),
+	triggers.Combination([ammæli[0].t_SwungRhythm, ammæli[1].t_SwungRhythm], name='swythms')
 )
 
 '''
@@ -230,14 +234,22 @@ def moliKnobOptions_CHANGE(newIndex):
 	LEDsArray[moliKnobOptions_INDEX] = 1
 	midiHandler.setLEDBlockArray('moliKnobOptions', LEDsArray, ('OFF', 'PINK_C'))
 
-triggerKnobOptions_INDEX = None
+triggerKnobOptions_INDEX = 0
 triggerKnobOptions_NAMES = ('simple', 'swung', 'swythm')
 
+'''
 def triggerKnobOptions_CHANGE(newIndex):
 	# receives 0-2 for SimpleLoop, Swung, SwungRhythm
 	# these stick, and by default are at 0
 	global triggerKnobOptions_INDEX
 	triggerKnobOptions_INDEX = newIndex
+	print('trigger knob controls: ' + triggerKnobOptions_NAMES[triggerKnobOptions_INDEX])'''
+
+def triggerKnobOptions_INCREMENT(value):
+	# for knob use
+	# receives -1 or 1
+	global triggerKnobOptions_INDEX
+	triggerKnobOptions_INDEX = mafs.incbind(triggerKnobOptions_INDEX, value, 0, len(triggerKnobOptions_NAMES) - 1)
 	print('trigger knob controls: ' + triggerKnobOptions_NAMES[triggerKnobOptions_INDEX])
 
 forceRespondOnce_TOGGLE = False
@@ -433,6 +445,7 @@ def endProgram():
 	midiHandler.end()
 	# show cursor again. unsure why it disappears
 	# from https://stackoverflow.com/questions/5174810/how-to-turn-off-blinking-cursor-in-command-window/10455937#10455937
+	# (does not work)
 	print("\033[?25h")
 	# end program
 	os._exit(0)
@@ -449,5 +462,5 @@ midiHandler.startLEDs()
 midiHandler.startLEDs() # will this fix the bug where some knobs stay lit?
 changeSelectedSykurmolar(0)
 moliKnobOptions_CHANGE(4)
-triggerKnobOptions_CHANGE(0)
+#triggerKnobOptions_CHANGE(0)
 sampleCounterInitTrigger.play()

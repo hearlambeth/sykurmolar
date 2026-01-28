@@ -87,7 +87,8 @@ on libreoffice, zoom to 131% to see exact paper size. print with OCR A font size
 - add swing to tapped rhythm? too much?
 - learn how to make use of individual response values for each parameter
 - fix bug: sometimes some knob LEDs fail to turn off on start. trying: do it again.
-- fix bug: endar still click. did i mess up a fadeout/fadein time?
+- ! fix bug: endar still click. did i mess up a fadeout/fadein time?
 - fix bug: forceRespondOnce_TOGGLE doesn't seem to do anything. did i remove this feature? did i not implement it properly?
-- how to release cursor after program end? - fix added
+- how to release cursor after program end? - fix added not working
+- combination triggers that combine existing ones. applied. would be cool if i could combine primes, but running out of space.
 - (long term) preset save, start. save all sykurmolar variables to a json, loaded like newAll.
